@@ -1,0 +1,37 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - link "Dragón de Madera Dragón de Madera Blood Bowl · Granada" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "Dragón de Madera" [ref=e8]
+        - generic [ref=e11]:
+          - img "Dragón de Madera" [ref=e12]
+          - generic [ref=e28]: Blood Bowl · Granada
+      - generic [ref=e29]:
+        - link "Torneos" [ref=e30] [cursor=pointer]:
+          - /url: /tournaments
+        - link "Jugadores" [ref=e31] [cursor=pointer]:
+          - /url: /players
+        - link "Estadísticas" [ref=e32] [cursor=pointer]:
+          - /url: /stats
+  - main [ref=e33]:
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img "Dragón de Madera" [ref=e37]
+        - heading "El Dragón de Madera" [level=1] [ref=e40]
+        - paragraph [ref=e41]: Granada
+        - paragraph [ref=e42]: Liga de Blood Bowl
+        - generic [ref=e43]:
+          - link "+ Nuevo torneo" [ref=e44] [cursor=pointer]:
+            - /url: /tournaments/new
+          - link "+ Nuevo jugador" [ref=e45] [cursor=pointer]:
+            - /url: /players/new
+      - generic [ref=e46]: Cargando…
+  - contentinfo [ref=e47]:
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - img "Dragón de Madera" [ref=e50]
+        - generic [ref=e53]:
+          - img "Dragón de Madera" [ref=e54]
+          - paragraph [ref=e70]: Blood Bowl · Granada
+      - paragraph [ref=e71]: Liga privada · Solo uso interno

@@ -9,7 +9,18 @@
       "Bash(cmd /c \"taskkill /F /PID 4912\" 2>&1)",
       "Bash(cmd /c \"taskkill /F /PID 4912 && echo OK\" 2>&1)",
       "Bash(cmd /c \"taskkill /F /PID 4912 > C:\\\\Temp\\\\out.txt 2>&1 & type C:\\\\Temp\\\\out.txt\" 2>&1)",
-      "Bash(powershell -Command \"Stop-Process -Id 4912 -Force; Write-Host 'Done'\")"
+      "Bash(powershell -Command \"Stop-Process -Id 4912 -Force; Write-Host 'Done'\")",
+      "WebFetch(domain:dragondemadera.com)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_resize",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(git branch:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }

@@ -7,6 +7,7 @@ export interface Race {
   id: number;
   name: string;
   rerollCost: number;
+  imageUrl: string | null;
 }
 
 export interface Skill {

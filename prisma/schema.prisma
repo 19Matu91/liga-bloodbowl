@@ -12,6 +12,7 @@ model Race {
   id           Int           @id @default(autoincrement())
   name         String        @unique
   rerollCost   Int           @default(0)
+  imageUrl     String?
   positions    Position[]
   participants Participant[]
   updatedAt    DateTime      @updatedAt

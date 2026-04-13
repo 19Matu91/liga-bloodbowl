@@ -32,6 +32,7 @@ export interface ScrapedRace {
   name: string;
   positions: ScrapedPosition[];
   rerollCost: number;
+  imageUrl?: string;
 }
 
 export interface ScrapedSkill {
@@ -64,6 +65,45 @@ export interface PersistSummary {
 const NUFFLEZONE_TEAMS_URL = 'https://nufflezone.com/en/blood-bowl-teams/';
 const NUFFLEZONE_SKILLS_URL = 'https://nufflezone.com/en/blood-bowl-skills-traits/';
 const NUFLHEIM_URL = 'https://jonasbusk.github.io/nuflheim/';
+const FANDOM_API_URL = 'https://blood-bowl.fandom.com/api.php';
+
+// Mapeo de nombres de nufflezone → títulos en la wiki de Fandom
+const FANDOM_TITLE_MAP: Record<string, string> = {
+  'Amazons': 'Amazons',
+  'Black Orcs': 'Black_Orcs',
+  'Bretonnia': 'Bretonnia',
+  'Chaos Chosen': 'Chaos',
+  'Chaos Dwarf': 'Chaos_Dwarfs',
+  'Chaos Renegade': 'Chaos_Renegades',
+  'Daemons of Khorne': 'Khorne',
+  'Dark Elf': 'Dark_Elves',
+  'Dwarf': 'Dwarfs',
+  'Elven Union': 'Elven_Union',
+  'Gnomes': 'Gnomes',
+  'Goblins': 'Goblins',
+  'Halflings': 'Halflings',
+  'High Elf': 'High_Elves',
+  'Human': 'Humans',
+  'Humanos': 'Humans',
+  'Imperial Nobility': 'Imperial_Nobility',
+  'Khorne': 'Khorne',
+  'Lizardmen': 'Lizardmen',
+  'Necromantic Horrors': 'Necromantic_Horror',
+  'Norses': 'Norse',
+  'Nurgle': 'Nurgle',
+  'Ogres': 'Ogres',
+  'Old World Aliance': 'Old_World_Alliance',
+  'Orc': 'Orcs',
+  'Shambling Undead': 'Undead',
+  'Skavens': 'Skaven',
+  'Slaanesh': 'Slaanesh',
+  'Slann': 'Slann',
+  'Snotlings': 'Snotlings',
+  'Tomb Kings': 'Tomb_Kings',
+  'Underworld Denizens': 'Underworld_Denizens',
+  'Vampires': 'Vampires',
+  'Wood elf': 'Wood_Elves',
+};
 
 const SKILL_CATEGORIES = ['AGILITY', 'DEVIOUS', 'GENERAL', 'MUTATION', 'PASSING', 'STRENGTH', 'TRAITS'] as const;
 
@@ -473,6 +513,51 @@ function parseSkillBlock(content: string, category: string): ScrapedSkill[] {
 // ─── 2.4 scrapeRosters() ─────────────────────────────────────────────────────
 
 /**
+ * Obtiene URLs de imágenes para cada raza desde la API de MediaWiki de Fandom.
+ * Usa el mapeo FANDOM_TITLE_MAP para traducir nombres de nufflezone a títulos de la wiki.
+ */
+export async function scrapeRaceImages(
+  raceNames: string[],
+): Promise<{ imageMap: Map<string, string>; errors: ScrapeError[] }> {
+  const imageMap = new Map<string, string>();
+  const errors: ScrapeError[] = [];
+
+  // Agrupar en lotes de 10 para no saturar la API
+  const BATCH_SIZE = 10;
+  for (let i = 0; i < raceNames.length; i += BATCH_SIZE) {
+    const batch = raceNames.slice(i, i + BATCH_SIZE);
+    const titles = batch
+      .map((name) => FANDOM_TITLE_MAP[name] ?? name.replace(/ /g, '_'))
+      .join('|');
+
+    try {
+      const url = `${FANDOM_API_URL}?action=query&titles=${encodeURIComponent(titles)}&prop=pageimages&format=json&pithumbsize=300&pilimit=${BATCH_SIZE}`;
+      const { data } = await axiosInstance.get<{
+        query: { pages: Record<string, { title: string; thumbnail?: { source: string } }> };
+      }>(url);
+
+      const pages = data?.query?.pages ?? {};
+      for (const page of Object.values(pages)) {
+        if (page.thumbnail?.source) {
+          // Buscar el nombre de raza original que corresponde a este título de Fandom
+          const raceName = batch.find(
+            (name) => (FANDOM_TITLE_MAP[name] ?? name.replace(/ /g, '_')) === page.title.replace(/ /g, '_'),
+          );
+          if (raceName) {
+            imageMap.set(raceName, page.thumbnail.source);
+          }
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push({ element: `fandom-images-batch-${i}`, error: msg });
+    }
+  }
+
+  return { imageMap, errors };
+}
+
+/**
  * Intenta obtener fichas detalladas desde jonasbusk.github.io/nuflheim/.
  *
  * NOTA: Nuflheim es una SPA React que carga datos dinámicamente. No expone
@@ -594,8 +679,8 @@ export async function persistReferenceData(
         // Upsert raza
         const dbRace = await tx.race.upsert({
           where: { name: race.name },
-          update: { scrapedAt, rerollCost: race.rerollCost },
-          create: { name: race.name, scrapedAt, rerollCost: race.rerollCost },
+          update: { scrapedAt, rerollCost: race.rerollCost, ...(race.imageUrl && { imageUrl: race.imageUrl }) },
+          create: { name: race.name, scrapedAt, rerollCost: race.rerollCost, imageUrl: race.imageUrl ?? null },
         });
         summary.racesUpserted++;
 
@@ -778,8 +863,28 @@ export async function main(): Promise<void> {
     console.log('      → Se conservan los datos previos en la BD');
   }
 
-  // ── Paso 3: Scrape de fichas (nuflheim) ─────────────────────────────────────
-  console.log('\n[3/4] Intentando obtener fichas desde nuflheim...');
+  // ── Paso 3: Scrape de imágenes desde Fandom ────────────────────────────────
+  if (races.length > 0) {
+    console.log('\n[3/5] Obteniendo imágenes de razas desde Blood Bowl Wiki (Fandom)...');
+    try {
+      const { imageMap, errors: imgErrors } = await scrapeRaceImages(races.map((r) => r.name));
+      allScrapeErrors.push(...imgErrors);
+      let imagesFound = 0;
+      for (const race of races) {
+        const url = imageMap.get(race.name);
+        if (url) { race.imageUrl = url; imagesFound++; }
+      }
+      console.log(`      → ${imagesFound}/${races.length} imágenes encontradas`);
+      if (imgErrors.length > 0) console.log(`      → ${imgErrors.length} errores parciales`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      allScrapeErrors.push({ element: 'scrapeRaceImages', error: msg });
+      console.error(`      ✗ Error en scrapeRaceImages: ${msg}`);
+    }
+  }
+
+  // ── Paso 4: Scrape de fichas (nuflheim) ─────────────────────────────────────
+  console.log('\n[4/5] Intentando obtener fichas desde nuflheim...');
   const rosterErrors: ScrapeError[] = [];
   try {
     const result = await scrapeRosters();
@@ -796,8 +901,8 @@ export async function main(): Promise<void> {
     console.log('      → Se conservan los datos previos en la BD');
   }
 
-  // ── Paso 4: Persistencia ────────────────────────────────────────────────────
-  console.log('\n[4/4] Persistiendo datos en PostgreSQL...');
+  // ── Paso 5: Persistencia ────────────────────────────────────────────────────
+  console.log('\n[5/5] Persistiendo datos en PostgreSQL...');
   let persistSummary: PersistSummary = {
     racesUpserted: 0,
     positionsUpserted: 0,

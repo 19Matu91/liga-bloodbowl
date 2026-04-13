@@ -4,47 +4,56 @@ import { players as api } from '../api/client';
 import type { Player } from '../types';
 
 export default function PlayerList() {
-  const [list, setList] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    api.getAll()
-      .then(setList)
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false));
+    api.getAll().then(setPlayers).finally(() => setLoading(false));
   }, []);
 
+  const filtered = players.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Jugadores</h1>
-        <Link
-          to="/players/new"
-          className="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          + Nuevo jugador
-        </Link>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="font-display text-2xl font-bold text-parchment-100">Jugadores</h1>
+        <Link to="/players/new" className="btn-primary shrink-0">+ Nuevo jugador</Link>
       </div>
 
-      {loading && <p className="text-gray-400">Cargando…</p>}
-      {error && <p className="text-red-400">Error: {error}</p>}
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Buscar jugador…"
+        className="input-field max-w-sm"
+      />
 
-      {!loading && !error && list.length === 0 && (
-        <p className="text-gray-500 italic">No hay jugadores registrados.</p>
-      )}
-
-      {!loading && !error && list.length > 0 && (
+      {loading ? (
+        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+      ) : filtered.length === 0 ? (
+        <div className="card p-12 text-center">
+          <p className="text-parchment-400 mb-4">
+            {search ? 'Sin resultados para esa búsqueda' : 'No hay jugadores registrados'}
+          </p>
+          {!search && <Link to="/players/new" className="btn-primary">Añadir el primero</Link>}
+        </div>
+      ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {list.map((p) => (
+          {filtered.map((p) => (
             <Link
               key={p.id}
               to={`/players/${p.id}`}
-              className="block bg-gray-900 border border-gray-800 hover:border-red-800 rounded-lg p-4 transition-colors"
+              className="card p-4 hover:border-dragon-500/40 transition-all duration-150 group flex items-center gap-3"
             >
-              <p className="text-white font-medium">{p.name}</p>
-              {p.alias && <p className="text-gray-400 text-sm">"{p.alias}"</p>}
-              {p.email && <p className="text-gray-500 text-xs mt-1">{p.email}</p>}
+              <div className="w-9 h-9 rounded-full bg-dragon-500/20 border border-dragon-500/30 flex items-center justify-center text-dragon-400 font-display font-bold text-sm shrink-0">
+                {p.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium text-parchment-100 group-hover:text-dragon-400 transition-colors truncate">
+                {p.name}
+              </span>
             </Link>
           ))}
         </div>

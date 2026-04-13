@@ -4,97 +4,64 @@ import { tournaments as api } from '../api/client';
 import type { Tournament } from '../types';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
-  DRAFT: 'Borrador',
-  ACTIVE: 'Activo',
-  COMPLETED: 'Completado',
+  DRAFT: 'Borrador', ACTIVE: 'Activo', COMPLETED: 'Finalizado',
 };
-
-const STATUS_CLASS: Record<Tournament['status'], string> = {
-  DRAFT: 'bg-gray-700 text-gray-300',
-  ACTIVE: 'bg-green-900 text-green-300',
-  COMPLETED: 'bg-gray-600 text-gray-400',
-};
-
 const FORMAT_LABEL: Record<Tournament['format'], string> = {
-  MIXED: 'Mixto',
-  SINGLE_ELIMINATION: 'Eliminación directa',
-  ROUND_ROBIN: 'Liguilla',
+  MIXED: 'Mixto', SINGLE_ELIMINATION: 'Eliminación', ROUND_ROBIN: 'Liguilla',
 };
 
 export default function TournamentList() {
-  const [list, setList] = useState<Tournament[]>([]);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getAll()
-      .then(setList)
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false));
+    api.getAll().then(setTournaments).finally(() => setLoading(false));
   }, []);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Torneos</h1>
-        <Link
-          to="/tournaments/new"
-          className="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          + Nuevo torneo
-        </Link>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold text-parchment-100">Torneos</h1>
+        <Link to="/tournaments/new" className="btn-primary">+ Nuevo torneo</Link>
       </div>
 
-      {loading && <p className="text-gray-400">Cargando…</p>}
-      {error && <p className="text-red-400">Error: {error}</p>}
-
-      {!loading && !error && list.length === 0 && (
-        <p className="text-gray-500 italic">No hay torneos registrados.</p>
-      )}
-
-      {!loading && !error && list.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-800 text-gray-400 text-left">
-                <th className="pb-3 pr-4 font-medium">Torneo</th>
-                <th className="pb-3 pr-4 font-medium hidden sm:table-cell">Edición</th>
-                <th className="pb-3 pr-4 font-medium hidden md:table-cell">Formato</th>
-                <th className="pb-3 pr-4 font-medium">Fecha inicio</th>
-                <th className="pb-3 font-medium">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((t) => (
-                <tr
-                  key={t.id}
-                  className="border-b border-gray-800/50 hover:bg-gray-900/50 transition-colors"
-                >
-                  <td className="py-3 pr-4">
-                    <Link
-                      to={`/tournaments/${t.id}`}
-                      className="text-white hover:text-red-400 font-medium transition-colors"
-                    >
-                      {t.name}
-                    </Link>
-                    <span className="text-gray-500 text-xs ml-2">{t.year}</span>
-                  </td>
-                  <td className="py-3 pr-4 text-gray-400 hidden sm:table-cell">{t.edition}</td>
-                  <td className="py-3 pr-4 text-gray-400 hidden md:table-cell">
-                    {FORMAT_LABEL[t.format]}
-                  </td>
-                  <td className="py-3 pr-4 text-gray-400">
-                    {new Date(t.startDate).toLocaleDateString('es-ES')}
-                  </td>
-                  <td className="py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_CLASS[t.status]}`}>
-                      {STATUS_LABEL[t.status]}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {loading ? (
+        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+      ) : tournaments.length === 0 ? (
+        <div className="card p-12 text-center">
+          <p className="text-parchment-400 mb-4">No hay torneos registrados</p>
+          <Link to="/tournaments/new" className="btn-primary">Crear el primero</Link>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {tournaments.map((t) => (
+            <Link
+              key={t.id}
+              to={`/tournaments/${t.id}`}
+              className="card p-4 flex items-center justify-between gap-4 hover:border-dragon-500/40 transition-all duration-150 group block"
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-display font-bold text-parchment-100 group-hover:text-dragon-400 transition-colors">
+                    {t.name}
+                  </span>
+                  <span className={
+                    t.status === 'ACTIVE' ? 'badge-active' :
+                    t.status === 'DRAFT' ? 'badge-draft' : 'badge-completed'
+                  }>
+                    {STATUS_LABEL[t.status]}
+                  </span>
+                </div>
+                <p className="text-parchment-400 text-xs mt-0.5">
+                  {t.edition} · {t.year} · {FORMAT_LABEL[t.format]}
+                  {(t._count?.participants ?? 0) > 0 && ` · ${t._count?.participants} participantes`}
+                </p>
+              </div>
+              <div className="text-parchment-400/50 text-xs shrink-0 hidden sm:block">
+                {new Date(t.startDate).toLocaleDateString('es-ES')}
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>

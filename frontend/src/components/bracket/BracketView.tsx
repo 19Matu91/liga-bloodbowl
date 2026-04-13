@@ -14,14 +14,7 @@ export default function BracketView({ bracket, tournament, standings, onResultSu
   const elimRounds = bracket.rounds.filter((r) => r.phase === 'ELIMINATION');
 
   if (bracket.format === 'ROUND_ROBIN') {
-    return (
-      <div>
-        <GroupStageTable
-          standings={standings}
-          qualifiersPerGroup={null}
-        />
-      </div>
-    );
+    return <GroupStageTable standings={standings} qualifiersPerGroup={null} />;
   }
 
   if (bracket.format === 'SINGLE_ELIMINATION') {
@@ -34,22 +27,21 @@ export default function BracketView({ bracket, tournament, standings, onResultSu
     );
   }
 
-  // MIXED format
+  // MIXED
   return (
     <div className="space-y-8">
       {groupRounds.length > 0 && (
         <div>
-          <h3 className="text-base font-bold text-yellow-400 mb-3">Fase de Grupos</h3>
+          <h3 className="text-xs font-bold text-parchment-400 uppercase tracking-wider mb-3">Fase de Grupos</h3>
           <GroupStageTable
             standings={standings.filter((s) => s.groupNumber != null)}
             qualifiersPerGroup={tournament.qualifiersPerGroup}
           />
         </div>
       )}
-
       {elimRounds.length > 0 && (
         <div>
-          <h3 className="text-base font-bold text-yellow-400 mb-3">Fase Eliminatoria</h3>
+          <h3 className="text-xs font-bold text-parchment-400 uppercase tracking-wider mb-3">Fase Eliminatoria</h3>
           <EliminationBracket
             rounds={elimRounds}
             tournament={tournament}

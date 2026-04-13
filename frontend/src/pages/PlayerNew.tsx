@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { players as api } from '../api/client';
 
 export default function PlayerNew() {
@@ -23,35 +23,47 @@ export default function PlayerNew() {
     }
   };
 
-  const inputClass = 'w-full bg-gray-900 border border-gray-700 focus:border-red-700 text-white rounded px-3 py-2 text-sm outline-none transition-colors';
-
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-white mb-6">Nuevo jugador</h1>
+      <div className="mb-6">
+        <Link to="/players" className="text-parchment-400 hover:text-parchment-300 text-sm transition-colors">
+          ← Jugadores
+        </Link>
+        <h1 className="font-display text-2xl font-bold text-parchment-100 mt-2">Nuevo jugador</h1>
+      </div>
+
       {error && (
-        <div className="bg-red-900/40 border border-red-700 text-red-300 rounded p-3 mb-4 text-sm">{error}</div>
+        <div className="bg-dragon-500/10 border border-dragon-500/30 text-dragon-300 rounded-lg p-3 mb-4 text-sm">
+          {error}
+        </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-400 text-xs mb-1">Nombre *</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={inputClass}
-            placeholder="Nombre completo"
-            required
-          />
-        </div>
-        <div className="flex gap-3 pt-2">
-          <button type="submit" disabled={submitting} className="bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-2 rounded font-medium transition-colors">
-            {submitting ? 'Creando…' : 'Crear jugador'}
-          </button>
-          <button type="button" onClick={() => navigate('/players')} className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-6 py-2 rounded font-medium transition-colors">
-            Cancelar
-          </button>
-        </div>
-      </form>
+
+      <div className="card p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-parchment-400 text-xs uppercase tracking-wider mb-1.5">
+              Nombre *
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input-field"
+              placeholder="Nombre del jugador"
+              required
+              autoFocus
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" disabled={submitting} className="btn-primary">
+              {submitting ? 'Creando…' : 'Crear jugador'}
+            </button>
+            <button type="button" onClick={() => navigate('/players')} className="btn-secondary">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

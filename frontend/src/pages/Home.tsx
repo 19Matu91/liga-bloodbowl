@@ -3,127 +3,125 @@ import { Link } from 'react-router-dom';
 import { tournaments as api } from '../api/client';
 import type { Tournament } from '../types';
 
-function StatusBadge({ status }: { status: Tournament['status'] }) {
-  const map = {
-    DRAFT: 'bg-gray-700 text-gray-300',
-    ACTIVE: 'bg-green-900 text-green-300',
-    COMPLETED: 'bg-gray-600 text-gray-400',
-  };
-  const label = { DRAFT: 'Borrador', ACTIVE: 'Activo', COMPLETED: 'Completado' };
+const STATUS_LABEL: Record<Tournament['status'], string> = {
+  DRAFT: 'Próximo',
+  ACTIVE: 'En curso',
+  COMPLETED: 'Finalizado',
+};
+
+function TournamentCard({ t }: { t: Tournament }) {
+  const isActive = t.status === 'ACTIVE';
+  const isDraft = t.status === 'DRAFT';
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${map[status]}`}>
-      {label[status]}
-    </span>
+    <Link
+      to={`/tournaments/${t.id}`}
+      className="card p-5 hover:border-dragon-500/40 transition-all duration-200 group block"
+    >
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <h3 className="font-display font-bold text-parchment-100 group-hover:text-dragon-400 transition-colors">
+          {t.name}
+        </h3>
+        <span className={isActive ? 'badge-active' : isDraft ? 'badge-draft' : 'badge-completed'}>
+          {STATUS_LABEL[t.status]}
+        </span>
+      </div>
+      <p className="text-parchment-400 text-sm">
+        {t.edition} · {t.year}
+      </p>
+      <p className="text-parchment-400/60 text-xs mt-1">
+        {new Date(t.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+      </p>
+      {(t._count?.participants ?? 0) > 0 && (
+        <p className="text-parchment-400/60 text-xs mt-2">
+          {t._count?.participants} participante{(t._count?.participants ?? 0) !== 1 ? 's' : ''}
+        </p>
+      )}
+    </Link>
   );
 }
 
 export default function Home() {
-  const [all, setAll] = useState<Tournament[]>([]);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getAll()
-      .then(setAll)
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false));
+    api.getAll().then(setTournaments).finally(() => setLoading(false));
   }, []);
 
-  const active = all.filter((t) => t.status === 'ACTIVE');
-  const upcoming = all.filter(
-    (t) => t.status === 'DRAFT' && new Date(t.startDate) > new Date()
-  );
+  const active = tournaments.filter((t) => t.status === 'ACTIVE');
+  const upcoming = tournaments.filter((t) => t.status === 'DRAFT');
+  const past = tournaments.filter((t) => t.status === 'COMPLETED').slice(0, 3);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       {/* Hero */}
-      <div className="text-center py-10 border-b border-red-900/30">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-3">
-          <span className="text-red-600">Blood Bowl</span> Torneos
+      <div className="text-center py-10 border-b border-parchment-100/10">
+        <div className="text-5xl mb-4">🐉</div>
+        <h1 className="font-display text-4xl font-bold text-parchment-100 mb-2">
+          El Dragón de Madera
         </h1>
-        <p className="text-gray-400 text-lg max-w-xl mx-auto">
-          Gestión de torneos de Blood Bowl para la asociación El Dragón de Madera
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link
-            to="/tournaments/new"
-            className="bg-red-800 hover:bg-red-700 text-white px-5 py-2 rounded font-medium transition-colors"
-          >
+        <p className="text-parchment-400 text-lg">Liga de Blood Bowl</p>
+        <div className="flex gap-3 justify-center mt-6">
+          <Link to="/tournaments/new" className="btn-primary">
             + Nuevo torneo
           </Link>
-          <Link
-            to="/players"
-            className="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2 rounded font-medium transition-colors"
-          >
-            Ver jugadores
+          <Link to="/players/new" className="btn-secondary">
+            + Nuevo jugador
           </Link>
         </div>
       </div>
 
-      {loading && <p className="text-gray-400 text-center">Cargando torneos…</p>}
-      {error && <p className="text-red-400 text-center">Error: {error}</p>}
-
-      {!loading && !error && (
+      {loading ? (
+        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+      ) : (
         <>
-          {/* Active tournaments */}
-          <section>
-            <h2 className="text-xl font-bold text-yellow-500 mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse" />
-              Torneos activos
-            </h2>
-            {active.length === 0 ? (
-              <p className="text-gray-500 italic">No hay torneos activos en este momento.</p>
-            ) : (
+          {active.length > 0 && (
+            <section>
+              <h2 className="section-title flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                Torneos en curso
+              </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {active.map((t) => (
-                  <TournamentCard key={t.id} tournament={t} />
-                ))}
+                {active.map((t) => <TournamentCard key={t.id} t={t} />)}
               </div>
-            )}
-          </section>
+            </section>
+          )}
 
-          {/* Upcoming tournaments */}
-          <section>
-            <h2 className="text-xl font-bold text-yellow-500 mb-4">Próximos torneos</h2>
-            {upcoming.length === 0 ? (
-              <p className="text-gray-500 italic">No hay torneos próximos programados.</p>
-            ) : (
+          {upcoming.length > 0 && (
+            <section>
+              <h2 className="section-title">Próximos torneos</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {upcoming.map((t) => (
-                  <TournamentCard key={t.id} tournament={t} />
-                ))}
+                {upcoming.map((t) => <TournamentCard key={t.id} t={t} />)}
               </div>
-            )}
-          </section>
+            </section>
+          )}
+
+          {past.length > 0 && (
+            <section>
+              <h2 className="section-title">Torneos recientes</h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {past.map((t) => <TournamentCard key={t.id} t={t} />)}
+              </div>
+              {tournaments.filter((t) => t.status === 'COMPLETED').length > 3 && (
+                <div className="mt-4 text-center">
+                  <Link to="/tournaments" className="text-dragon-400 hover:text-dragon-300 text-sm transition-colors">
+                    Ver todos los torneos →
+                  </Link>
+                </div>
+              )}
+            </section>
+          )}
+
+          {tournaments.length === 0 && (
+            <div className="text-center py-16 text-parchment-400">
+              <p className="text-4xl mb-4">🏈</p>
+              <p className="text-lg font-display text-parchment-300 mb-2">Sin torneos todavía</p>
+              <p className="text-sm mb-6">Crea el primer torneo para empezar</p>
+              <Link to="/tournaments/new" className="btn-primary">Crear torneo</Link>
+            </div>
+          )}
         </>
       )}
     </div>
-  );
-}
-
-function TournamentCard({ tournament: t }: { tournament: Tournament }) {
-  return (
-    <Link
-      to={`/tournaments/${t.id}`}
-      className="block bg-gray-900 border border-gray-800 hover:border-red-800 rounded-lg p-4 transition-colors"
-    >
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-bold text-white text-sm leading-tight">{t.name}</h3>
-        <StatusBadge status={t.status} />
-      </div>
-      <p className="text-gray-400 text-xs mb-1">
-        {t.edition} · {t.year}
-      </p>
-      <p className="text-gray-500 text-xs">
-        {new Date(t.startDate).toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })}
-      </p>
-      {t._count && (
-        <p className="text-gray-600 text-xs mt-2">{t._count.participants} participantes</p>
-      )}
-    </Link>
   );
 }

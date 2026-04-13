@@ -1,144 +1,128 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { stats as api } from '../api/client';
 import type { GlobalStats, FactionStats } from '../types';
 
-type Tab = 'global' | 'factions';
-
 export default function StatsPage() {
-  const [tab, setTab] = useState<Tab>('global');
+  const [tab, setTab] = useState<'global' | 'factions'>('global');
   const [global, setGlobal] = useState<GlobalStats[]>([]);
   const [factions, setFactions] = useState<FactionStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([api.getGlobal(), api.getFactions()])
       .then(([g, f]) => { setGlobal(g); setFactions(f); })
-      .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Estadísticas</h1>
+  const tabCls = (active: boolean) =>
+    `px-4 py-2 text-sm font-medium rounded transition-all duration-150 ${
+      active ? 'bg-dragon-500 text-parchment-100' : 'text-parchment-400 hover:text-parchment-100 hover:bg-parchment-100/8'
+    }`;
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-800">
-        <TabButton active={tab === 'global'} onClick={() => setTab('global')}>
-          Ranking Global
-        </TabButton>
-        <TabButton active={tab === 'factions'} onClick={() => setTab('factions')}>
-          Por Facción
-        </TabButton>
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-bold text-parchment-100">Estadísticas</h1>
+
+      <div className="flex gap-2 border-b border-parchment-100/10 pb-4">
+        <button className={tabCls(tab === 'global')} onClick={() => setTab('global')}>Ranking global</button>
+        <button className={tabCls(tab === 'factions')} onClick={() => setTab('factions')}>Por facción</button>
       </div>
 
-      {loading && <p className="text-gray-400">Cargando estadísticas…</p>}
-      {error && <p className="text-red-400">Error: {error}</p>}
-
-      {!loading && !error && tab === 'global' && <GlobalRanking data={global} />}
-      {!loading && !error && tab === 'factions' && <FactionRanking data={factions} />}
+      {loading ? (
+        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+      ) : tab === 'global' ? (
+        <GlobalTable data={global} />
+      ) : (
+        <FactionTable data={factions} />
+      )}
     </div>
   );
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function GlobalTable({ data }: { data: GlobalStats[] }) {
+  if (data.length === 0) return <p className="text-parchment-400 italic text-sm">Sin datos disponibles.</p>;
   return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-        active
-          ? 'border-red-600 text-white'
-          : 'border-transparent text-gray-400 hover:text-white'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function GlobalRanking({ data }: { data: GlobalStats[] }) {
-  if (data.length === 0) return <p className="text-gray-500 italic">Sin datos disponibles.</p>;
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-800 text-gray-400 text-left">
-            <th className="pb-2 pr-2 font-medium w-8">Pos</th>
-            <th className="pb-2 pr-4 font-medium">Jugador</th>
-            <th className="pb-2 pr-3 font-medium text-center hidden sm:table-cell">Torneos</th>
-            <th className="pb-2 pr-3 font-medium text-center">PJ</th>
-            <th className="pb-2 pr-3 font-medium text-center">V</th>
-            <th className="pb-2 pr-3 font-medium text-center">E</th>
-            <th className="pb-2 pr-3 font-medium text-center">D</th>
-            <th className="pb-2 pr-3 font-medium text-center">Pts</th>
-            <th className="pb-2 pr-3 font-medium text-center hidden lg:table-cell">TF</th>
-            <th className="pb-2 pr-3 font-medium text-center hidden lg:table-cell">TC</th>
-            <th className="pb-2 font-medium text-center hidden lg:table-cell">Dif</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((p, i) => (
-            <tr key={p.playerId} className="border-b border-gray-800/50">
-              <td className="py-2 pr-2 text-gray-500 text-center">{i + 1}</td>
-              <td className="py-2 pr-4">
-                <span className="text-white font-medium">{p.playerName}</span>
-                {p.alias && <span className="text-gray-500 text-xs ml-1">({p.alias})</span>}
-              </td>
-              <td className="py-2 pr-3 text-center text-gray-400 hidden sm:table-cell">{p.tournamentsPlayed}</td>
-              <td className="py-2 pr-3 text-center text-gray-300">{p.played}</td>
-              <td className="py-2 pr-3 text-center text-green-400">{p.wins}</td>
-              <td className="py-2 pr-3 text-center text-yellow-400">{p.draws}</td>
-              <td className="py-2 pr-3 text-center text-red-400">{p.losses}</td>
-              <td className="py-2 pr-3 text-center text-white font-bold">{p.points}</td>
-              <td className="py-2 pr-3 text-center text-gray-400 hidden lg:table-cell">{p.tdFor}</td>
-              <td className="py-2 pr-3 text-center text-gray-400 hidden lg:table-cell">{p.tdAgainst}</td>
-              <td className={`py-2 text-center font-medium hidden lg:table-cell ${p.tdDiff > 0 ? 'text-green-400' : p.tdDiff < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                {p.tdDiff > 0 ? `+${p.tdDiff}` : p.tdDiff}
-              </td>
+    <div className="card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="table-header">
+              <th className="px-4 py-3 font-medium">#</th>
+              <th className="px-4 py-3 font-medium text-left">Jugador</th>
+              <th className="px-4 py-3 font-medium text-center hidden sm:table-cell">Torneos</th>
+              <th className="px-4 py-3 font-medium text-center">PJ</th>
+              <th className="px-4 py-3 font-medium text-center">V</th>
+              <th className="px-4 py-3 font-medium text-center">E</th>
+              <th className="px-4 py-3 font-medium text-center">D</th>
+              <th className="px-4 py-3 font-medium text-center">Pts</th>
+              <th className="px-4 py-3 font-medium text-center hidden lg:table-cell">Dif</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((s, i) => (
+              <tr key={s.playerId} className="table-row">
+                <td className="px-4 py-3 text-parchment-400/60 text-center font-mono text-xs">{i + 1}</td>
+                <td className="px-4 py-3">
+                  <Link to={`/players/${s.playerId}`} className="text-parchment-100 hover:text-dragon-400 transition-colors font-medium">
+                    {s.playerName}
+                  </Link>
+                </td>
+                <td className="px-4 py-3 text-center text-parchment-400 hidden sm:table-cell">{s.tournamentsPlayed}</td>
+                <td className="px-4 py-3 text-center text-parchment-300">{s.played}</td>
+                <td className="px-4 py-3 text-center text-emerald-400 font-medium">{s.wins}</td>
+                <td className="px-4 py-3 text-center text-parchment-400">{s.draws}</td>
+                <td className="px-4 py-3 text-center text-dragon-400">{s.losses}</td>
+                <td className="px-4 py-3 text-center text-parchment-100 font-bold">{s.points}</td>
+                <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-400' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
+                  {s.tdDiff > 0 ? `+${s.tdDiff}` : s.tdDiff}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
-function FactionRanking({ data }: { data: FactionStats[] }) {
-  if (data.length === 0) return <p className="text-gray-500 italic">Sin datos disponibles.</p>;
-
+function FactionTable({ data }: { data: FactionStats[] }) {
+  if (data.filter((f) => f.played > 0).length === 0)
+    return <p className="text-parchment-400 italic text-sm">Sin datos disponibles.</p>;
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-800 text-gray-400 text-left">
-            <th className="pb-2 pr-4 font-medium">Raza</th>
-            <th className="pb-2 pr-3 font-medium text-center hidden sm:table-cell">Usos</th>
-            <th className="pb-2 pr-3 font-medium text-center">PJ</th>
-            <th className="pb-2 pr-3 font-medium text-center">V</th>
-            <th className="pb-2 pr-3 font-medium text-center">E</th>
-            <th className="pb-2 pr-3 font-medium text-center">D</th>
-            <th className="pb-2 font-medium text-center">% Vic</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((f) => (
-            <tr key={f.raceId} className="border-b border-gray-800/50">
-              <td className="py-2 pr-4 text-white font-medium">{f.raceName}</td>
-              <td className="py-2 pr-3 text-center text-gray-400 hidden sm:table-cell">{f.timesUsed}</td>
-              <td className="py-2 pr-3 text-center text-gray-300">{f.played}</td>
-              <td className="py-2 pr-3 text-center text-green-400">{f.wins}</td>
-              <td className="py-2 pr-3 text-center text-yellow-400">{f.draws}</td>
-              <td className="py-2 pr-3 text-center text-red-400">{f.losses}</td>
-              <td className="py-2 text-center">
-                <span className={`font-bold ${f.winRate >= 50 ? 'text-green-400' : f.winRate >= 33 ? 'text-yellow-400' : 'text-red-400'}`}>
-                  {f.winRate}%
-                </span>
-              </td>
+    <div className="card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="table-header">
+              <th className="px-4 py-3 font-medium text-left">Raza</th>
+              <th className="px-4 py-3 font-medium text-center hidden sm:table-cell">Usos</th>
+              <th className="px-4 py-3 font-medium text-center">PJ</th>
+              <th className="px-4 py-3 font-medium text-center">V</th>
+              <th className="px-4 py-3 font-medium text-center">E</th>
+              <th className="px-4 py-3 font-medium text-center">D</th>
+              <th className="px-4 py-3 font-medium text-center">% V</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.filter((f) => f.played > 0).map((f) => (
+              <tr key={f.raceId} className="table-row">
+                <td className="px-4 py-3 text-parchment-100 font-medium">{f.raceName}</td>
+                <td className="px-4 py-3 text-center text-parchment-400 hidden sm:table-cell">{f.timesUsed}</td>
+                <td className="px-4 py-3 text-center text-parchment-300">{f.played}</td>
+                <td className="px-4 py-3 text-center text-emerald-400 font-medium">{f.wins}</td>
+                <td className="px-4 py-3 text-center text-parchment-400">{f.draws}</td>
+                <td className="px-4 py-3 text-center text-dragon-400">{f.losses}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className={`font-bold ${f.winRate >= 50 ? 'text-emerald-400' : 'text-parchment-400'}`}>
+                    {f.winRate}%
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs wc:*)",
+      "Bash(xargs grep:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /PID 4912 /F\")",
+      "Bash(cmd /c \"taskkill /F /PID 4912\" 2>&1)",
+      "Bash(cmd /c \"taskkill /F /PID 4912 && echo OK\" 2>&1)",
+      "Bash(cmd /c \"taskkill /F /PID 4912 > C:\\\\Temp\\\\out.txt 2>&1 & type C:\\\\Temp\\\\out.txt\" 2>&1)",
+      "Bash(powershell -Command \"Stop-Process -Id 4912 -Force; Write-Host 'Done'\")"
+    ]
+  }
+}

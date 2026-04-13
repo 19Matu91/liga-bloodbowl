@@ -4,6 +4,66 @@
 
 @layer base {
   body {
-    @apply bg-gray-950 text-gray-100 min-h-screen;
+    background-color: #1A1A1A;
+    color: #F4F1EA;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-dragon-500 hover:bg-dragon-600 active:bg-dragon-700 text-parchment-100 px-4 py-2 rounded font-medium text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-carbon-800 hover:bg-carbon-850 border border-parchment-300/20 text-parchment-300 px-4 py-2 rounded font-medium text-sm transition-all duration-150;
+  }
+
+  .btn-danger {
+    @apply bg-dragon-500/20 hover:bg-dragon-500/40 border border-dragon-500/40 text-dragon-300 px-4 py-2 rounded font-medium text-sm transition-all duration-150 disabled:opacity-50;
+  }
+
+  .card {
+    @apply bg-carbon-850 border border-parchment-100/10 rounded-lg;
+  }
+
+  .input-field {
+    @apply w-full bg-carbon-900 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 placeholder-parchment-400/40 rounded px-3 py-2 text-sm outline-none transition-colors;
+  }
+
+  .select-field {
+    @apply w-full bg-carbon-900 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 rounded px-3 py-2 text-sm outline-none transition-colors;
+  }
+
+  .table-header {
+    @apply border-b border-parchment-100/10 text-parchment-400 text-left text-xs uppercase tracking-wider;
+  }
+
+  .table-row {
+    @apply border-b border-parchment-100/5 hover:bg-parchment-100/3 transition-colors;
+  }
+
+  .badge-active {
+    @apply bg-emerald-900/40 text-emerald-400 border border-emerald-700/40 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+
+  .badge-draft {
+    @apply bg-parchment-100/10 text-parchment-400 border border-parchment-100/20 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+
+  .badge-completed {
+    @apply bg-carbon-800 text-parchment-400/60 border border-parchment-100/10 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+
+  .section-title {
+    @apply font-display text-lg font-bold text-parchment-100 mb-4;
+  }
+
+  .divider {
+    @apply border-t border-parchment-100/10 my-6;
   }
 }

@@ -33,11 +33,8 @@ export default function MatchResultForm({ match, onSuccess, onCancel }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isUpdate) {
-      setShowConfirm(true);
-    } else {
-      doSubmit();
-    }
+    if (isUpdate) setShowConfirm(true);
+    else doSubmit();
   };
 
   const homeName = match.homeParticipant?.player.name ?? 'BYE';
@@ -50,46 +47,37 @@ export default function MatchResultForm({ match, onSuccess, onCancel }: Props) {
           title="Modificar resultado"
           message="Este partido ya tiene resultado. ¿Deseas modificarlo?"
           confirmLabel="Modificar"
+          danger={false}
           onConfirm={() => { setShowConfirm(false); doSubmit(); }}
           onCancel={() => setShowConfirm(false)}
         />
       )}
-      <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-600 rounded p-3 mt-2 space-y-2">
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+      <form onSubmit={handleSubmit} className="bg-carbon-900 border border-parchment-100/15 rounded-lg p-3 mt-2 space-y-3">
+        {error && <p className="text-dragon-400 text-xs">{error}</p>}
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-white font-medium flex-1 text-right truncate">{homeName}</span>
+          <span className="text-parchment-100 font-medium flex-1 text-right truncate text-xs">{homeName}</span>
           <input
             type="number"
             value={homeTDs}
             onChange={(e) => setHomeTDs(Number(e.target.value))}
-            min={0}
-            max={99}
-            className="w-12 bg-gray-900 border border-gray-600 text-white text-center rounded px-1 py-1 text-sm outline-none"
+            min={0} max={99}
+            className="w-12 bg-carbon-850 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 text-center rounded px-1 py-1.5 text-sm outline-none transition-colors"
           />
-          <span className="text-gray-500">–</span>
+          <span className="text-parchment-400/60 text-xs">–</span>
           <input
             type="number"
             value={awayTDs}
             onChange={(e) => setAwayTDs(Number(e.target.value))}
-            min={0}
-            max={99}
-            className="w-12 bg-gray-900 border border-gray-600 text-white text-center rounded px-1 py-1 text-sm outline-none"
+            min={0} max={99}
+            className="w-12 bg-carbon-850 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 text-center rounded px-1 py-1.5 text-sm outline-none transition-colors"
           />
-          <span className="text-white font-medium flex-1 truncate">{awayName}</span>
+          <span className="text-parchment-100 font-medium flex-1 truncate text-xs">{awayName}</span>
         </div>
         <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white px-3 py-1 rounded text-xs transition-colors"
-          >
+          <button type="submit" disabled={submitting} className="btn-primary text-xs py-1.5 px-3">
             {submitting ? 'Guardando…' : isUpdate ? 'Actualizar' : 'Guardar'}
           </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded text-xs transition-colors"
-          >
+          <button type="button" onClick={onCancel} className="btn-secondary text-xs py-1.5 px-3">
             Cancelar
           </button>
         </div>

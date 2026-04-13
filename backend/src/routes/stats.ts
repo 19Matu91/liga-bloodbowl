@@ -53,7 +53,6 @@ router.get('/global', async (_req: Request, res: Response): Promise<void> => {
       return {
         playerId: player.id,
         playerName: player.name,
-        alias: player.alias,
         tournamentsPlayed: player.participants.length,
         played,
         wins,

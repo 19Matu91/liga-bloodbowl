@@ -31,6 +31,7 @@ export interface ScrapedPosition {
 export interface ScrapedRace {
   name: string;
   positions: ScrapedPosition[];
+  rerollCost: number;
 }
 
 export interface ScrapedSkill {
@@ -150,9 +151,9 @@ export async function scrapeRaces(): Promise<{ races: ScrapedRace[]; errors: Scr
   // 2. Visitar cada página de equipo
   for (const { name: raceName, url } of teamUrls) {
     try {
-      const positions = await scrapeRacePositions(raceName, url);
+      const { positions, rerollCost } = await scrapeRacePositions(raceName, url);
       if (positions.length > 0) {
-        races.push({ name: raceName, positions });
+        races.push({ name: raceName, positions, rerollCost });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -167,8 +168,9 @@ export async function scrapeRaces(): Promise<{ races: ScrapedRace[]; errors: Scr
 async function scrapeRacePositions(
   raceName: string,
   url: string,
-): Promise<ScrapedPosition[]> {
+): Promise<{ positions: ScrapedPosition[]; rerollCost: number }> {
   const positions: ScrapedPosition[] = [];
+  let rerollCost = 0;
 
   const { data: html } = await axiosInstance.get<string>(url);
   const $ = cheerio.load(html);
@@ -210,15 +212,23 @@ async function scrapeRacePositions(
           idx >= 0 ? $(cells[idx]).text().trim() : '';
 
         const positionName = getCellText(colIdx.position);
+        if (!positionName) return;
+        const posLower = positionName.toLowerCase();
+
+        // Extraer coste de re-roll antes de ignorar la fila
+        if (posLower.includes('reroll')) {
+          const costRaw = getCellText(colIdx.cost);
+          const extracted = parseCost(costRaw);
+          if (extracted > 0) rerollCost = extracted;
+          return;
+        }
 
         // Ignorar silenciosamente filas que no son posiciones de jugadores
         const NON_POSITION_KEYWORDS = [
-          'reroll', 'special rules', 'leagues', 'choose', 'of 2', 'of 3', 'of 4',
+          'special rules', 'leagues', 'choose', 'of 2', 'of 3', 'of 4',
           'apothecary', 'wizard', 'inducement', 'star player', 'assistant',
           'cheerleader', 'head coach',
         ];
-        if (!positionName) return;
-        const posLower = positionName.toLowerCase();
         if (NON_POSITION_KEYWORDS.some((kw) => posLower.includes(kw))) return;
 
         const qtyRaw = getCellText(colIdx.qty);
@@ -252,7 +262,7 @@ async function scrapeRacePositions(
       });
   });
 
-  return positions;
+  return { positions, rerollCost };
 }
 
 // ─── 2.3 scrapeSkills() ───────────────────────────────────────────────────────
@@ -584,8 +594,8 @@ export async function persistReferenceData(
         // Upsert raza
         const dbRace = await tx.race.upsert({
           where: { name: race.name },
-          update: { scrapedAt },
-          create: { name: race.name, scrapedAt },
+          update: { scrapedAt, rerollCost: race.rerollCost },
+          create: { name: race.name, scrapedAt, rerollCost: race.rerollCost },
         });
         summary.racesUpserted++;
 

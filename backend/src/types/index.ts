@@ -50,9 +50,18 @@ export interface RegisterParticipantInput {
   playerId: number;
   raceId: number;
   teamName?: string;
+  rerolls?: number;
+  hasApothecary?: boolean;
+  roster?: RosterEntryInput[];
 }
 
 export interface MatchResultInput {
   homeTDs: number;
   awayTDs: number;
+}
+
+export interface UpdateRosterInput {
+  roster: RosterEntryInput[];
+  rerolls?: number;
+  hasApothecary?: boolean;
 }

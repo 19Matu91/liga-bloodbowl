@@ -205,14 +205,52 @@ router.post('/:id/participants', async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const participant = await prisma.participant.create({
-      data: {
-        playerId: body.playerId,
-        tournamentId,
-        raceId: body.raceId,
-        teamName: body.teamName?.trim() ?? null,
-      },
-      include: { player: true, race: true },
+    const rerolls = body.rerolls ?? 0;
+    const hasApothecary = body.hasApothecary ?? false;
+    const rerollCost = race.rerollCost;
+
+    // Calculate initial team value if roster provided
+    let rosterValue = 0;
+    if (body.roster && body.roster.length > 0) {
+      for (const entry of body.roster) {
+        const position = await prisma.position.findUnique({ where: { id: entry.positionId } });
+        if (position) rosterValue += position.cost;
+      }
+    }
+    const teamValue = rosterValue + rerolls * rerollCost + (hasApothecary ? 50000 : 0);
+
+    const participant = await prisma.$transaction(async (tx) => {
+      const created = await tx.participant.create({
+        data: {
+          playerId: body.playerId,
+          tournamentId,
+          raceId: body.raceId,
+          teamName: body.teamName?.trim() ?? null,
+          rerolls,
+          hasApothecary,
+          teamValue,
+        },
+        include: { player: true, race: true },
+      });
+
+      if (body.roster && body.roster.length > 0) {
+        for (const entry of body.roster) {
+          await tx.rosterEntry.create({
+            data: {
+              participantId: created.id,
+              positionId: entry.positionId,
+              playerName: entry.playerName ?? null,
+              spp: entry.spp ?? 0,
+              injuries: entry.injuries ?? null,
+              skills: entry.skillIds
+                ? { create: entry.skillIds.map((skillId) => ({ skillId })) }
+                : undefined,
+            },
+          });
+        }
+      }
+
+      return created;
     });
 
     res.status(201).json(participant);

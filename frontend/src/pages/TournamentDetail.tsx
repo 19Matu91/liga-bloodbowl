@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { tournaments as api, players as playersApi, participants as participantsApi, reference } from '../api/client';
-import type { Tournament, StandingsEntry, BracketData, Player, Race } from '../types';
+import type { Tournament, StandingsEntry, BracketData, Player, Race, Position } from '../types';
 import BracketView from '../components/bracket/BracketView';
+import TeamSheetForm, { type TeamSheetData } from '../components/TeamSheetForm';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
   DRAFT: 'Borrador',
@@ -291,17 +292,44 @@ function RegisterForm({
 }) {
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [races, setRaces] = useState<Race[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [step, setStep] = useState<1 | 2>(1);
+
+  // Step 1 fields
   const [playerId, setPlayerId] = useState('');
   const [raceId, setRaceId] = useState('');
   const [teamName, setTeamName] = useState('');
+
+  // Step 2 — team sheet
+  const [sheet, setSheet] = useState<TeamSheetData>({ rerolls: 0, hasApothecary: false, roster: [] });
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingPositions, setLoadingPositions] = useState(false);
 
   useEffect(() => {
     Promise.all([playersApi.getAll(), reference.getRaces()])
       .then(([p, r]) => { setAllPlayers(p); setRaces(r); })
       .catch(() => setError('Error al cargar datos'));
   }, []);
+
+  const handleRaceChange = async (newRaceId: string) => {
+    setRaceId(newRaceId);
+    setPositions([]);
+    setSheet({ rerolls: 0, hasApothecary: false, roster: [] });
+    if (!newRaceId) return;
+    setLoadingPositions(true);
+    try {
+      const pos = await reference.getRacePositions(Number(newRaceId));
+      setPositions(pos);
+    } catch {
+      setError('Error al cargar posiciones de la raza');
+    } finally {
+      setLoadingPositions(false);
+    }
+  };
+
+  const selectedRace = races.find((r) => r.id === Number(raceId));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -313,6 +341,15 @@ function RegisterForm({
         playerId: Number(playerId),
         raceId: Number(raceId),
         teamName: teamName.trim() || undefined,
+        rerolls: sheet.rerolls,
+        hasApothecary: sheet.hasApothecary,
+        roster: sheet.roster
+          .filter((r) => r.positionId !== null)
+          .map((r) => ({
+            positionId: r.positionId!,
+            playerName: r.playerName || undefined,
+            skillIds: [],
+          })),
       });
       onSuccess();
     } catch (e: unknown) {
@@ -322,57 +359,116 @@ function RegisterForm({
     }
   };
 
+  const selectCls = 'w-full bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none focus:border-red-700';
+  const inputCls = 'w-full bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none focus:border-red-700';
+
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-700 rounded p-4 mb-4 space-y-3">
+    <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-700 rounded p-4 mb-4 space-y-4">
       <h3 className="text-sm font-bold text-white">Inscribir jugador</h3>
       {error && <p className="text-red-400 text-xs">{error}</p>}
-      <div className="grid sm:grid-cols-3 gap-3">
-        <div>
-          <label className="block text-gray-400 text-xs mb-1">Jugador *</label>
-          <select
-            value={playerId}
-            onChange={(e) => setPlayerId(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none"
-            required
-          >
-            <option value="">Seleccionar…</option>
-            {allPlayers.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}{p.alias ? ` (${p.alias})` : ''}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-400 text-xs mb-1">Raza *</label>
-          <select
-            value={raceId}
-            onChange={(e) => setRaceId(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none"
-            required
-          >
-            <option value="">Seleccionar…</option>
-            {races.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-400 text-xs mb-1">Nombre de equipo</label>
-          <input
-            type="text"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none"
-            placeholder="Opcional"
-          />
-        </div>
+
+      {/* Step indicator */}
+      <div className="flex gap-2 text-xs">
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className={`px-3 py-1 rounded transition-colors ${step === 1 ? 'bg-red-800 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+        >
+          1. Datos básicos
+        </button>
+        <button
+          type="button"
+          onClick={() => { if (raceId) setStep(2); }}
+          disabled={!raceId}
+          className={`px-3 py-1 rounded transition-colors disabled:opacity-40 ${step === 2 ? 'bg-red-800 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+        >
+          2. Ficha de equipo
+        </button>
       </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className="bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors"
-      >
-        {submitting ? 'Inscribiendo…' : 'Inscribir'}
-      </button>
+
+      {/* Step 1 */}
+      {step === 1 && (
+        <div className="space-y-3">
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Jugador *</label>
+              <select value={playerId} onChange={(e) => setPlayerId(e.target.value)} className={selectCls} required>
+                <option value="">Seleccionar…</option>
+                {allPlayers.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}{p.alias ? ` (${p.alias})` : ''}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Raza *</label>
+              <select value={raceId} onChange={(e) => handleRaceChange(e.target.value)} className={selectCls} required>
+                <option value="">Seleccionar…</option>
+                {races.map((r) => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Nombre de equipo</label>
+              <input
+                type="text"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className={inputCls}
+                placeholder="Opcional"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {raceId && (
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded text-sm transition-colors"
+              >
+                {loadingPositions ? 'Cargando…' : 'Siguiente: Ficha →'}
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={submitting || !playerId || !raceId}
+              className="bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors"
+            >
+              {submitting ? 'Inscribiendo…' : 'Inscribir sin ficha'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2 */}
+      {step === 2 && selectedRace && (
+        <div className="space-y-4">
+          <TeamSheetForm
+            teamName={teamName}
+            raceName={selectedRace.name}
+            rerollCost={selectedRace.rerollCost}
+            positions={positions}
+            value={sheet}
+            onChange={setSheet}
+          />
+          <div className="flex gap-2 pt-2 border-t border-gray-800">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded text-sm transition-colors"
+            >
+              ← Atrás
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !playerId || !raceId}
+              className="bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors"
+            >
+              {submitting ? 'Inscribiendo…' : 'Inscribir con ficha'}
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

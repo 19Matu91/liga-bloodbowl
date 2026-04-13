@@ -6,6 +6,7 @@ export type RoundPhase = 'GROUP_STAGE' | 'ELIMINATION';
 export interface Race {
   id: number;
   name: string;
+  rerollCost: number;
 }
 
 export interface Skill {
@@ -13,6 +14,20 @@ export interface Skill {
   name: string;
   category: string;
   description: string;
+}
+
+export interface Position {
+  id: number;
+  raceId: number;
+  name: string;
+  cost: number;
+  ma: number;
+  st: number;
+  ag: number;
+  pa: number | null;
+  av: number;
+  maxCount: number;
+  skills: Array<{ skill: Skill }>;
 }
 
 export interface Player {
@@ -32,6 +47,9 @@ export interface Participant {
   raceId: number;
   teamName: string | null;
   groupNumber: number | null;
+  rerolls: number;
+  hasApothecary: boolean;
+  teamValue: number;
   player: Player;
   race: Race;
 }
@@ -150,4 +168,15 @@ export interface RegisterParticipantInput {
   playerId: number;
   raceId: number;
   teamName?: string;
+  rerolls?: number;
+  hasApothecary?: boolean;
+  roster?: RosterEntryInput[];
+}
+
+export interface RosterEntryInput {
+  positionId: number;
+  playerName?: string;
+  skillIds?: number[];
+  spp?: number;
+  injuries?: string;
 }

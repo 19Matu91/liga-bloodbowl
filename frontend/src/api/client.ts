@@ -8,6 +8,7 @@ import type {
   FactionStats,
   Race,
   Skill,
+  Position,
   CreateTournamentInput,
   CreatePlayerInput,
   RegisterParticipantInput,
@@ -64,10 +65,12 @@ export const participants = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  updateRoster: (participantId: number, roster: unknown[]) =>
+  getById: (id: number) =>
+    request<Participant & { roster: unknown[] }>(`/api/participants/${id}`),
+  updateRoster: (participantId: number, roster: unknown[], rerolls?: number, hasApothecary?: boolean) =>
     request<unknown[]>(`/api/participants/${participantId}/roster`, {
       method: 'PUT',
-      body: JSON.stringify({ roster }),
+      body: JSON.stringify({ roster, rerolls, hasApothecary }),
     }),
 };
 
@@ -84,6 +87,8 @@ export const matches = {
 export const reference = {
   getRaces: () => request<Race[]>('/api/reference/races'),
   getSkills: () => request<Skill[]>('/api/reference/skills'),
+  getRacePositions: (raceId: number) =>
+    request<Position[]>(`/api/reference/races/${raceId}/positions`),
 };
 
 // Stats

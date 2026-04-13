@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Participant" ADD COLUMN     "hasApothecary" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "rerolls" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "teamValue" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Race" ADD COLUMN     "rerollCost" INTEGER NOT NULL DEFAULT 0;

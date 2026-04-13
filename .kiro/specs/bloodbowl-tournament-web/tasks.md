@@ -296,7 +296,7 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - Ajustar breakpoints en componentes de bracket y tablas
     - _Requisitos: 4.5, 7.5_
 
-- [ ] 17. Checkpoint final — Verificar integración completa
+- [x] 17. Checkpoint final — Verificar integración completa
   - Asegurarse de que todos los tests pasan (backend + propiedades). Preguntar al usuario si hay dudas antes de dar por completada la implementación.
 
 ## Notas

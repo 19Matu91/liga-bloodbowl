@@ -11,6 +11,7 @@ generator client {
 model Race {
   id           Int           @id @default(autoincrement())
   name         String        @unique
+  rerollCost   Int           @default(0)
   positions    Position[]
   participants Participant[]
   updatedAt    DateTime      @updatedAt
@@ -111,6 +112,9 @@ model Participant {
   race          Race            @relation(fields: [raceId], references: [id])
   teamName      String?
   groupNumber   Int?            // Grupo asignado en Fase de Grupos
+  rerolls       Int             @default(0)
+  hasApothecary Boolean         @default(false)
+  teamValue     Int             @default(0)
   roster        RosterEntry[]
   rosterHistory RosterHistory[]
   homeMatches   Match[]         @relation("HomeParticipant")

@@ -165,7 +165,37 @@ router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    await prisma.tournament.delete({ where: { id } });
+    // Borrar en cascada: roster skills → roster entries → roster history →
+    // match results → matches → rounds → participants → tournament
+    await prisma.$transaction(async (tx) => {
+      // 1. RosterEntrySkill de todos los participantes del torneo
+      await tx.rosterEntrySkill.deleteMany({
+        where: { rosterEntry: { participant: { tournamentId: id } } },
+      });
+      // 2. RosterEntry
+      await tx.rosterEntry.deleteMany({
+        where: { participant: { tournamentId: id } },
+      });
+      // 3. RosterHistory
+      await tx.rosterHistory.deleteMany({
+        where: { participant: { tournamentId: id } },
+      });
+      // 4. Matches (nullify winners first to avoid self-reference issues)
+      await tx.match.updateMany({
+        where: { round: { tournamentId: id } },
+        data: { winnerId: null },
+      });
+      await tx.match.deleteMany({
+        where: { round: { tournamentId: id } },
+      });
+      // 5. Rounds
+      await tx.round.deleteMany({ where: { tournamentId: id } });
+      // 6. Participants
+      await tx.participant.deleteMany({ where: { tournamentId: id } });
+      // 7. Tournament
+      await tx.tournament.delete({ where: { id } });
+    });
+
     res.json({ message: 'Torneo eliminado correctamente.' });
   } catch (err) {
     res.status(500).json({ error: 'Error al eliminar torneo', details: String(err) });

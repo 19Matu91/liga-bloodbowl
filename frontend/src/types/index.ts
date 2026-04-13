@@ -34,9 +34,6 @@ export interface Position {
 export interface Player {
   id: number;
   name: string;
-  alias: string | null;
-  email: string | null;
-  phone: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -120,7 +117,6 @@ export interface StandingsEntry {
 export interface GlobalStats {
   playerId: number;
   playerName: string;
-  alias: string | null;
   tournamentsPlayed: number;
   played: number;
   wins: number;
@@ -160,9 +156,6 @@ export interface CreateTournamentInput {
 
 export interface CreatePlayerInput {
   name: string;
-  alias?: string;
-  email?: string;
-  phone?: string;
 }
 
 export interface RegisterParticipantInput {

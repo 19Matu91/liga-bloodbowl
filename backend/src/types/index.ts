@@ -41,9 +41,6 @@ export interface CreateTournamentInput {
 
 export interface CreatePlayerInput {
   name: string;
-  alias?: string;
-  email?: string;
-  phone?: string;
 }
 
 export interface RegisterParticipantInput {

@@ -94,9 +94,6 @@ enum TournamentFormat {
 model Player {
   id           Int           @id @default(autoincrement())
   name         String
-  alias        String?
-  email        String?
-  phone        String?
   participants Participant[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt

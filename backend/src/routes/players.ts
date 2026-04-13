@@ -28,9 +28,6 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     const player = await prisma.player.create({
       data: {
         name: body.name.trim(),
-        alias: body.alias?.trim() ?? null,
-        email: body.email?.trim() ?? null,
-        phone: body.phone?.trim() ?? null,
       },
     });
     res.status(201).json(player);
@@ -84,7 +81,40 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// DELETE /api/players/:id — soft delete: preserve history
+// PUT /api/players/:id
+router.put('/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID inválido.' });
+      return;
+    }
+
+    const player = await prisma.player.findUnique({ where: { id } });
+    if (!player) {
+      res.status(404).json({ error: `Jugador con id=${id} no encontrado.` });
+      return;
+    }
+
+    const body = req.body as Partial<CreatePlayerInput>;
+    if (body.name !== undefined && (!body.name || body.name.trim() === '')) {
+      res.status(400).json({ error: 'El campo "name" no puede estar vacío.' });
+      return;
+    }
+
+    const updated = await prisma.player.update({
+      where: { id },
+      data: {
+        ...(body.name && { name: body.name.trim() }),
+      },
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar jugador', details: String(err) });
+  }
+});
+
+// DELETE /api/players/:id — hard delete, cascade through participations
 router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -99,18 +129,44 @@ router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Soft delete: anonymize personal data but keep participation history
-    await prisma.player.update({
-      where: { id },
-      data: {
-        name: `[Eliminado #${id}]`,
-        alias: null,
-        email: null,
-        phone: null,
-      },
+    await prisma.$transaction(async (tx) => {
+      // Borrar en cascada todo lo relacionado con las participaciones del jugador
+      await tx.rosterEntrySkill.deleteMany({
+        where: { rosterEntry: { participant: { playerId: id } } },
+      });
+      await tx.rosterEntry.deleteMany({
+        where: { participant: { playerId: id } },
+      });
+      await tx.rosterHistory.deleteMany({
+        where: { participant: { playerId: id } },
+      });
+      // Nullify winnerId en partidos donde este jugador ganó
+      const participantIds = (await tx.participant.findMany({
+        where: { playerId: id },
+        select: { id: true },
+      })).map((p) => p.id);
+
+      if (participantIds.length > 0) {
+        await tx.match.updateMany({
+          where: { winnerId: { in: participantIds } },
+          data: { winnerId: null },
+        });
+        // Nullify home/away participant references in matches
+        await tx.match.updateMany({
+          where: { homeParticipantId: { in: participantIds } },
+          data: { homeParticipantId: null },
+        });
+        await tx.match.updateMany({
+          where: { awayParticipantId: { in: participantIds } },
+          data: { awayParticipantId: null },
+        });
+      }
+
+      await tx.participant.deleteMany({ where: { playerId: id } });
+      await tx.player.delete({ where: { id } });
     });
 
-    res.json({ message: 'Jugador eliminado correctamente. El historial se ha conservado.' });
+    res.json({ message: 'Jugador eliminado correctamente.' });
   } catch (err) {
     res.status(500).json({ error: 'Error al eliminar jugador', details: String(err) });
   }

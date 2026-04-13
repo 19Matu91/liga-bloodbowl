@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { players as api } from '../api/client';
 import type { Player, Participant, Match } from '../types';
+import ConfirmModal from '../components/ui/ConfirmModal';
+import AlertModal from '../components/ui/AlertModal';
 
 type PlayerWithHistory = Player & {
   participants: (Participant & {
@@ -13,41 +15,68 @@ type PlayerWithHistory = Player & {
 
 function calcStats(participant: PlayerWithHistory['participants'][0]) {
   let played = 0, wins = 0, draws = 0, losses = 0, tdFor = 0, tdAgainst = 0;
-
   for (const m of participant.homeMatches) {
     if (m.status !== 'COMPLETED' || m.homeTDs == null || m.awayTDs == null) continue;
-    played++;
-    tdFor += m.homeTDs;
-    tdAgainst += m.awayTDs;
-    if (m.homeTDs > m.awayTDs) wins++;
-    else if (m.homeTDs < m.awayTDs) losses++;
-    else draws++;
+    played++; tdFor += m.homeTDs; tdAgainst += m.awayTDs;
+    if (m.homeTDs > m.awayTDs) wins++; else if (m.homeTDs < m.awayTDs) losses++; else draws++;
   }
   for (const m of participant.awayMatches) {
     if (m.status !== 'COMPLETED' || m.homeTDs == null || m.awayTDs == null) continue;
-    played++;
-    tdFor += m.awayTDs;
-    tdAgainst += m.homeTDs;
-    if (m.awayTDs > m.homeTDs) wins++;
-    else if (m.awayTDs < m.homeTDs) losses++;
-    else draws++;
+    played++; tdFor += m.awayTDs; tdAgainst += m.homeTDs;
+    if (m.awayTDs > m.homeTDs) wins++; else if (m.awayTDs < m.homeTDs) losses++; else draws++;
   }
-
   return { played, wins, draws, losses, points: wins * 3 + draws, tdFor, tdAgainst, tdDiff: tdFor - tdAgainst };
 }
 
 export default function PlayerDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [player, setPlayer] = useState<PlayerWithHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [form, setForm] = useState({ name: '' });
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
   useEffect(() => {
     api.getById(Number(id))
-      .then((p) => setPlayer(p as unknown as PlayerWithHistory))
+      .then((p) => {
+        setPlayer(p as unknown as PlayerWithHistory);
+        setForm({ name: p.name });
+      })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleSave = async () => {
+    if (!form.name.trim()) return;
+    setSaving(true);
+    try {
+      const updated = await api.update(Number(id), { name: form.name.trim() });
+      setPlayer((prev) => prev ? { ...prev, ...updated } : prev);
+      setEditing(false);
+    } catch (e: unknown) {
+      setAlertMsg(e instanceof Error ? e.message : 'Error al guardar');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await api.delete(Number(id));
+      navigate('/players');
+    } catch (e: unknown) {
+      setAlertMsg(e instanceof Error ? e.message : 'Error al eliminar');
+      setDeleting(false);
+    }
+  };
+
+  const inputCls = 'w-full bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none focus:border-red-700';
 
   if (loading) return <p className="text-gray-400">Cargando…</p>;
   if (error) return <p className="text-red-400">Error: {error}</p>;
@@ -55,35 +84,80 @@ export default function PlayerDetail() {
 
   return (
     <div className="space-y-8">
+      {confirmDelete && (
+        <ConfirmModal
+          title="Eliminar jugador"
+          message={`¿Eliminar a "${player.name}"? Esta acción no se puede deshacer.`}
+          confirmLabel="Eliminar"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
+      {alertMsg && (
+        <AlertModal message={alertMsg} onClose={() => setAlertMsg(null)} />
+      )}
       {/* Profile */}
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">{player.name}</h1>
-            {player.alias && (
-              <p className="text-yellow-500 text-sm mt-0.5">"{player.alias}"</p>
+            {!editing && (
+              <>
+                <h1 className="text-2xl font-bold text-white">{player.name}</h1>
+              </>
             )}
           </div>
-          <span className="text-gray-500 text-sm">#{player.id}</span>
-        </div>
-        <div className="mt-4 grid sm:grid-cols-2 gap-2 text-sm">
-          {player.email && (
-            <div>
-              <span className="text-gray-500">Email: </span>
-              <span className="text-gray-300">{player.email}</span>
-            </div>
-          )}
-          {player.phone && (
-            <div>
-              <span className="text-gray-500">Teléfono: </span>
-              <span className="text-gray-300">{player.phone}</span>
-            </div>
-          )}
-          <div>
-            <span className="text-gray-500">Torneos: </span>
-            <span className="text-gray-300">{player.participants.length}</span>
+          <div className="flex gap-2">
+            {!editing ? (
+              <>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded text-sm transition-colors"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={deleting}
+                  className="bg-red-900/50 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
+                >
+                  {deleting ? 'Eliminando…' : 'Eliminar'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !form.name.trim()}
+                  className="bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white px-3 py-1.5 rounded text-sm transition-colors"
+                >
+                  {saving ? 'Guardando…' : 'Guardar'}
+                </button>
+                <button
+                  onClick={() => {
+                    setEditing(false);
+                    setForm({ name: player.name });
+                  }}
+                  className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded text-sm transition-colors"
+                >
+                  Cancelar
+                </button>
+              </>
+            )}
           </div>
         </div>
+
+        {editing ? (
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-gray-400 text-xs mb-1">Nombre *</label>
+              <input type="text" value={form.name} onChange={(e) => setForm({ name: e.target.value })} className={inputCls} />
+            </div>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-2 text-sm">
+            <div><span className="text-gray-500">Torneos: </span><span className="text-gray-300">{player.participants.length}</span></div>
+          </div>
+        )}
       </div>
 
       {/* Tournament history */}
@@ -113,10 +187,7 @@ export default function PlayerDetail() {
                   return (
                     <tr key={p.id} className="border-b border-gray-800/50">
                       <td className="py-2 pr-4">
-                        <Link
-                          to={`/tournaments/${p.tournament.id}`}
-                          className="text-white hover:text-red-400 transition-colors font-medium"
-                        >
+                        <Link to={`/tournaments/${p.tournament.id}`} className="text-white hover:text-red-400 transition-colors font-medium">
                           {p.tournament.name}
                         </Link>
                         <span className="text-gray-500 text-xs ml-1">{p.tournament.year}</span>

@@ -54,6 +54,8 @@ export const players = {
   getById: (id: number) => request<Player & { participants: Participant[] }>(`/api/players/${id}`),
   create: (data: CreatePlayerInput) =>
     request<Player>('/api/players', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: Partial<CreatePlayerInput>) =>
+    request<Player>(`/api/players/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) =>
     request<{ message: string }>(`/api/players/${id}`, { method: 'DELETE' }),
 };

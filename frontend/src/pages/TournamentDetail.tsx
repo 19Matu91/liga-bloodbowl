@@ -4,6 +4,8 @@ import { tournaments as api, players as playersApi, participants as participants
 import type { Tournament, StandingsEntry, BracketData, Player, Race, Position } from '../types';
 import BracketView from '../components/bracket/BracketView';
 import TeamSheetForm, { type TeamSheetData } from '../components/TeamSheetForm';
+import ConfirmModal from '../components/ui/ConfirmModal';
+import AlertModal from '../components/ui/AlertModal';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
   DRAFT: 'Borrador',
@@ -30,6 +32,8 @@ export default function TournamentDetail() {
   const [deleting, setDeleting] = useState(false);
   const [generatingBracket, setGeneratingBracket] = useState(false);
   const [generatingElim, setGeneratingElim] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -51,13 +55,12 @@ export default function TournamentDetail() {
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async () => {
-    if (!window.confirm(`¿Eliminar el torneo "${tournament?.name}"? Esta acción no se puede deshacer.`)) return;
     setDeleting(true);
     try {
       await api.delete(tournamentId);
       navigate('/tournaments');
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Error al eliminar');
+      setAlertMsg(e instanceof Error ? e.message : 'Error al eliminar');
       setDeleting(false);
     }
   };
@@ -68,7 +71,7 @@ export default function TournamentDetail() {
       await api.generateBracket(tournamentId);
       await load();
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Error al generar bracket');
+      setAlertMsg(e instanceof Error ? e.message : 'Error al generar bracket');
     } finally {
       setGeneratingBracket(false);
     }
@@ -80,7 +83,7 @@ export default function TournamentDetail() {
       await api.generateElimination(tournamentId);
       await load();
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Error al generar fase eliminatoria');
+      setAlertMsg(e instanceof Error ? e.message : 'Error al generar fase eliminatoria');
     } finally {
       setGeneratingElim(false);
     }
@@ -101,6 +104,18 @@ export default function TournamentDetail() {
 
   return (
     <div className="space-y-8">
+      {confirmDelete && (
+        <ConfirmModal
+          title="Eliminar torneo"
+          message={`¿Eliminar "${tournament.name}"? Esta acción no se puede deshacer.`}
+          confirmLabel="Eliminar"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
+      {alertMsg && (
+        <AlertModal message={alertMsg} onClose={() => setAlertMsg(null)} />
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
@@ -133,7 +148,7 @@ export default function TournamentDetail() {
             Editar
           </Link>
           <button
-            onClick={handleDelete}
+            onClick={() => setConfirmDelete(true)}
             disabled={deleting}
             className="bg-red-900/50 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
           >
@@ -201,7 +216,6 @@ export default function TournamentDetail() {
                     <td className="py-2 pr-4">
                       <Link to={`/players/${p.playerId}`} className="text-white hover:text-red-400 transition-colors">
                         {p.player.name}
-                        {p.player.alias && <span className="text-gray-500 ml-1">({p.player.alias})</span>}
                       </Link>
                     </td>
                     <td className="py-2 pr-4 text-gray-400">{p.teamName ?? '—'}</td>
@@ -395,7 +409,7 @@ function RegisterForm({
               <select value={playerId} onChange={(e) => setPlayerId(e.target.value)} className={selectCls} required>
                 <option value="">Seleccionar…</option>
                 {allPlayers.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}{p.alias ? ` (${p.alias})` : ''}</option>
+                  <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
             </div>

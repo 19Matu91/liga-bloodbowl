@@ -52,7 +52,7 @@ export default function MatchResultForm({ match, onSuccess, onCancel }: Props) {
           onCancel={() => setShowConfirm(false)}
         />
       )}
-      <form onSubmit={handleSubmit} className="bg-carbon-900 border border-parchment-100/15 rounded-lg p-3 mt-2 space-y-3">
+      <form onSubmit={handleSubmit} className="bg-gray-50 border border-black/10 rounded-lg p-3 mt-2 space-y-3">
         {error && <p className="text-dragon-400 text-xs">{error}</p>}
         <div className="flex items-center gap-2 text-sm">
           <span className="text-parchment-100 font-medium flex-1 text-right truncate text-xs">{homeName}</span>
@@ -61,7 +61,7 @@ export default function MatchResultForm({ match, onSuccess, onCancel }: Props) {
             value={homeTDs}
             onChange={(e) => setHomeTDs(Number(e.target.value))}
             min={0} max={99}
-            className="w-12 bg-carbon-850 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 text-center rounded px-1 py-1.5 text-sm outline-none transition-colors"
+            className="w-12 bg-white border border-black/15 focus:border-verde-500 text-parchment-100 text-center rounded px-1 py-1.5 text-sm outline-none transition-colors"
           />
           <span className="text-parchment-400/60 text-xs">–</span>
           <input
@@ -69,7 +69,7 @@ export default function MatchResultForm({ match, onSuccess, onCancel }: Props) {
             value={awayTDs}
             onChange={(e) => setAwayTDs(Number(e.target.value))}
             min={0} max={99}
-            className="w-12 bg-carbon-850 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 text-center rounded px-1 py-1.5 text-sm outline-none transition-colors"
+            className="w-12 bg-white border border-black/15 focus:border-verde-500 text-parchment-100 text-center rounded px-1 py-1.5 text-sm outline-none transition-colors"
           />
           <span className="text-parchment-100 font-medium flex-1 truncate text-xs">{awayName}</span>
         </div>

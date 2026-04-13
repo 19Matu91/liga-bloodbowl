@@ -46,12 +46,12 @@ export default function PlayerList() {
             <Link
               key={p.id}
               to={`/players/${p.id}`}
-              className="card p-4 hover:border-dragon-500/40 transition-all duration-150 group flex items-center gap-3"
+              className="card p-4 hover:border-verde-500/40 transition-all duration-150 group flex items-center gap-3"
             >
-              <div className="w-9 h-9 rounded-full bg-dragon-500/20 border border-dragon-500/30 flex items-center justify-center text-dragon-400 font-display font-bold text-sm shrink-0">
+              <div className="w-9 h-9 rounded-full bg-verde-500/10 border border-verde-500/20 flex items-center justify-center text-verde-500 font-display font-bold text-sm shrink-0">
                 {p.name.charAt(0).toUpperCase()}
               </div>
-              <span className="font-medium text-parchment-100 group-hover:text-dragon-400 transition-colors truncate">
+              <span className="font-medium text-parchment-100 group-hover:text-verde-500 transition-colors truncate">
                 {p.name}
               </span>
             </Link>

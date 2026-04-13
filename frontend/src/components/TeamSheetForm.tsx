@@ -90,7 +90,6 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
     });
   };
 
-  // Count how many of each position are already in roster
   const positionCounts: Record<number, number> = {};
   for (const row of roster) {
     if (row.positionId !== null) {
@@ -98,36 +97,36 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
     }
   }
 
-  const inputCls = 'bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 text-sm outline-none focus:border-red-700 w-full';
-  const statCls = 'bg-gray-800 border border-gray-700 text-white rounded px-1 py-1 text-sm outline-none focus:border-red-700 w-12 text-center';
+  const inputCls = 'bg-white border border-black/15 text-parchment-100 rounded px-2 py-1 text-sm outline-none focus:border-verde-500 w-full transition-colors';
+  const statCls = 'bg-white border border-black/15 text-parchment-100 rounded px-1 py-1 text-sm outline-none focus:border-verde-500 w-12 text-center transition-colors';
 
   return (
     <div className="space-y-4">
       {/* Header info */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-800/50 rounded p-3 text-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 border border-black/10 rounded-lg p-3 text-sm">
         <div>
-          <p className="text-gray-500 text-xs mb-0.5">Equipo</p>
-          <p className="text-white font-medium">{teamName || '—'}</p>
+          <p className="text-parchment-400 text-xs mb-0.5">Equipo</p>
+          <p className="text-parchment-100 font-medium">{teamName || '—'}</p>
         </div>
         <div>
-          <p className="text-gray-500 text-xs mb-0.5">Raza</p>
-          <p className="text-white font-medium">{raceName}</p>
+          <p className="text-parchment-400 text-xs mb-0.5">Raza</p>
+          <p className="text-parchment-100 font-medium">{raceName}</p>
         </div>
         <div>
-          <p className="text-gray-500 text-xs mb-0.5">Tesorería</p>
-          <p className="text-yellow-400 font-medium">{formatGold(TREASURY)}</p>
+          <p className="text-parchment-400 text-xs mb-0.5">Tesorería</p>
+          <p className="text-terracota-500 font-medium">{formatGold(TREASURY)}</p>
         </div>
         <div>
-          <p className="text-gray-500 text-xs mb-0.5">Valor de equipo</p>
-          <p className="text-yellow-500 font-bold">{formatGold(teamValue)}</p>
+          <p className="text-parchment-400 text-xs mb-0.5">Valor de equipo</p>
+          <p className="text-terracota-500 font-bold">{formatGold(teamValue)}</p>
         </div>
       </div>
 
       {/* Re-rolls & Apothecary */}
       <div className="flex flex-wrap gap-4 items-end">
         <div>
-          <label className="block text-gray-400 text-xs mb-1">
-            Re-rolls {rerollCost > 0 && <span className="text-gray-500">({formatGold(rerollCost)} c/u)</span>}
+          <label className="block text-parchment-400 text-xs mb-1">
+            Re-rolls {rerollCost > 0 && <span className="text-parchment-400/60">({formatGold(rerollCost)} c/u)</span>}
           </label>
           <div className="flex items-center gap-2">
             <input
@@ -136,10 +135,10 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
               max={8}
               value={rerolls}
               onChange={(e) => update({ rerolls: Math.max(0, Math.min(8, Number(e.target.value))) })}
-              className="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none focus:border-red-700 w-20 text-center"
+              className="bg-white border border-black/15 text-parchment-100 rounded px-2 py-1.5 text-sm outline-none focus:border-verde-500 w-20 text-center transition-colors"
             />
             {rerollCost > 0 && (
-              <span className="text-gray-400 text-xs">= {formatGold(rerolls * rerollCost)}</span>
+              <span className="text-parchment-400 text-xs">= {formatGold(rerolls * rerollCost)}</span>
             )}
           </div>
         </div>
@@ -149,26 +148,26 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
               type="checkbox"
               checked={hasApothecary}
               onChange={(e) => update({ hasApothecary: e.target.checked })}
-              className="w-4 h-4 accent-red-700"
+              className="w-4 h-4 accent-verde-500"
             />
-            <span className="text-gray-300 text-sm">
-              Apotecario <span className="text-gray-500 text-xs">({formatGold(APOTHECARY_COST)})</span>
+            <span className="text-parchment-300 text-sm">
+              Apotecario <span className="text-parchment-400 text-xs">({formatGold(APOTHECARY_COST)})</span>
             </span>
           </label>
         </div>
       </div>
 
-      {/* Roster table — desktop */}
+      {/* Roster table */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-bold text-gray-300">
+          <h4 className="text-sm font-bold text-parchment-300">
             Plantilla ({roster.length}/{MAX_ROSTER})
           </h4>
           {roster.length < MAX_ROSTER && (
             <button
               type="button"
               onClick={addPlayer}
-              className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs transition-colors"
+              className="bg-gray-100 hover:bg-gray-200 border border-black/10 text-parchment-300 px-3 py-1 rounded text-xs transition-colors"
             >
               + Añadir jugador
             </button>
@@ -176,14 +175,14 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
         </div>
 
         {roster.length === 0 ? (
-          <p className="text-gray-600 italic text-sm">Sin jugadores. Pulsa "+ Añadir jugador".</p>
+          <p className="text-parchment-400/60 italic text-sm">Sin jugadores. Pulsa "+ Añadir jugador".</p>
         ) : (
           <>
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-gray-700 text-gray-500 text-left">
+                  <tr className="border-b border-black/10 text-parchment-400 text-left">
                     <th className="pb-1.5 pr-2 w-8">Nº</th>
                     <th className="pb-1.5 pr-2 min-w-[100px]">Nombre</th>
                     <th className="pb-1.5 pr-2 min-w-[140px]">Posición</th>
@@ -254,8 +253,8 @@ interface RowProps {
 
 function RosterRowDesktop({ row, idx, positions, positionCounts, onPositionChange, onUpdate, onRemove, inputCls, statCls }: RowProps) {
   return (
-    <tr className="border-b border-gray-800/50">
-      <td className="py-1.5 pr-2 text-gray-500 text-center">{row.number}</td>
+    <tr className="border-b border-black/5">
+      <td className="py-1.5 pr-2 text-parchment-400 text-center">{row.number}</td>
       <td className="py-1.5 pr-2">
         <input
           type="text"
@@ -300,14 +299,14 @@ function RosterRowDesktop({ row, idx, positions, positionCounts, onPositionChang
       <td className="py-1.5 pr-2">
         <SkillsEditor skills={row.skills} onChange={(skills) => onUpdate(idx, { skills })} />
       </td>
-      <td className="py-1.5 pr-2 text-right text-yellow-500 whitespace-nowrap">
+      <td className="py-1.5 pr-2 text-right text-terracota-500 whitespace-nowrap">
         {row.value > 0 ? (row.value / 1000).toFixed(0) + 'k' : '—'}
       </td>
       <td className="py-1.5">
         <button
           type="button"
           onClick={() => onRemove(idx)}
-          className="text-gray-600 hover:text-red-400 transition-colors text-base leading-none"
+          className="text-parchment-400/50 hover:text-dragon-400 transition-colors text-base leading-none"
           title="Eliminar"
         >
           ×
@@ -320,24 +319,24 @@ function RosterRowDesktop({ row, idx, positions, positionCounts, onPositionChang
 // ── Mobile card ───────────────────────────────────────────────────────────────
 
 function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange, onUpdate, onRemove }: Omit<RowProps, 'inputCls' | 'statCls'>) {
-  const inputCls = 'bg-gray-800 border border-gray-700 text-white rounded px-2 py-1.5 text-sm outline-none focus:border-red-700 w-full';
-  const statCls = 'bg-gray-800 border border-gray-700 text-white rounded px-1 py-1.5 text-sm outline-none focus:border-red-700 w-full text-center';
+  const inputCls = 'bg-white border border-black/15 text-parchment-100 rounded px-2 py-1.5 text-sm outline-none focus:border-verde-500 w-full transition-colors';
+  const statCls = 'bg-white border border-black/15 text-parchment-100 rounded px-1 py-1.5 text-sm outline-none focus:border-verde-500 w-full text-center transition-colors';
 
   return (
-    <div className="bg-gray-800/40 border border-gray-700 rounded p-3 space-y-2">
+    <div className="bg-gray-50 border border-black/10 rounded-lg p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-gray-500 text-xs font-bold">#{row.number}</span>
+        <span className="text-parchment-400 text-xs font-bold">#{row.number}</span>
         <button
           type="button"
           onClick={() => onRemove(idx)}
-          className="text-gray-600 hover:text-red-400 transition-colors text-lg leading-none"
+          className="text-parchment-400/50 hover:text-dragon-400 transition-colors text-lg leading-none"
         >
           ×
         </button>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-gray-500 text-xs">Nombre</label>
+          <label className="text-parchment-400 text-xs">Nombre</label>
           <input
             type="text"
             value={row.playerName}
@@ -347,7 +346,7 @@ function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange
           />
         </div>
         <div>
-          <label className="text-gray-500 text-xs">Posición</label>
+          <label className="text-parchment-400 text-xs">Posición</label>
           <PositionSelect
             positions={positions}
             positionCounts={positionCounts}
@@ -360,7 +359,7 @@ function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange
       <div className="grid grid-cols-5 gap-1">
         {(['ma', 'st', 'ag', 'av'] as const).map((stat) => (
           <div key={stat}>
-            <label className="text-gray-500 text-xs uppercase">{stat}</label>
+            <label className="text-parchment-400 text-xs uppercase">{stat}</label>
             <input
               type="number"
               value={row[stat]}
@@ -370,7 +369,7 @@ function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange
           </div>
         ))}
         <div>
-          <label className="text-gray-500 text-xs uppercase">PA</label>
+          <label className="text-parchment-400 text-xs uppercase">PA</label>
           <input
             type="text"
             value={row.pa !== null ? String(row.pa) : '—'}
@@ -383,11 +382,11 @@ function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange
         </div>
       </div>
       <div>
-        <label className="text-gray-500 text-xs">Habilidades</label>
+        <label className="text-parchment-400 text-xs">Habilidades</label>
         <SkillsEditor skills={row.skills} onChange={(skills) => onUpdate(idx, { skills })} />
       </div>
       {row.value > 0 && (
-        <p className="text-right text-yellow-500 text-xs">{(row.value / 1000).toFixed(0)}k MO</p>
+        <p className="text-right text-terracota-500 text-xs">{(row.value / 1000).toFixed(0)}k MO</p>
       )}
     </div>
   );
@@ -412,13 +411,12 @@ function PositionSelect({
     <select
       value={currentPosId ?? ''}
       onChange={(e) => onChange(idx, e.target.value)}
-      className="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 text-xs outline-none focus:border-red-700 w-full"
+      className="bg-white border border-black/15 text-parchment-100 rounded px-2 py-1 text-xs outline-none focus:border-verde-500 w-full transition-colors"
     >
       <option value="">Seleccionar…</option>
       {positions.map((p) => {
         const count = positionCounts[p.id] ?? 0;
         const isCurrentPos = currentPosId === p.id;
-        // Available if we haven't hit maxCount, or this row already uses this position
         const available = isCurrentPos || count < p.maxCount;
         return (
           <option key={p.id} value={p.id} disabled={!available}>
@@ -452,13 +450,13 @@ function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (s: st
       {skills.map((s) => (
         <span
           key={s}
-          className="bg-gray-700 text-gray-300 text-xs px-1.5 py-0.5 rounded flex items-center gap-1"
+          className="bg-verde-500/10 text-verde-500 border border-verde-500/20 text-xs px-1.5 py-0.5 rounded flex items-center gap-1"
         >
           {s}
           <button
             type="button"
             onClick={() => remove(s)}
-            className="text-gray-500 hover:text-red-400 leading-none"
+            className="text-verde-500/60 hover:text-dragon-400 leading-none"
           >
             ×
           </button>
@@ -472,14 +470,14 @@ function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (s: st
           onChange={(e) => setNewSkill(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } if (e.key === 'Escape') { setAdding(false); setNewSkill(''); } }}
           onBlur={add}
-          className="bg-gray-800 border border-gray-600 text-white rounded px-1.5 py-0.5 text-xs outline-none w-24"
+          className="bg-white border border-black/15 text-parchment-100 rounded px-1.5 py-0.5 text-xs outline-none focus:border-verde-500 w-24"
           placeholder="Habilidad…"
         />
       ) : (
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="text-gray-600 hover:text-gray-400 text-xs transition-colors"
+          className="text-parchment-400/50 hover:text-verde-500 text-xs transition-colors"
           title="Añadir habilidad"
         >
           +

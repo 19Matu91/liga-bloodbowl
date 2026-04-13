@@ -17,7 +17,7 @@ export default function StatsPage() {
 
   const tabCls = (active: boolean) =>
     `px-4 py-2 text-sm font-medium rounded transition-all duration-150 ${
-      active ? 'bg-dragon-500 text-parchment-100' : 'text-parchment-400 hover:text-parchment-100 hover:bg-parchment-100/8'
+      active ? 'bg-verde-500 text-white' : 'text-parchment-400 hover:text-parchment-100 hover:bg-black/5'
     }`;
 
   return (
@@ -64,17 +64,17 @@ function GlobalTable({ data }: { data: GlobalStats[] }) {
               <tr key={s.playerId} className="table-row">
                 <td className="px-4 py-3 text-parchment-400/60 text-center font-mono text-xs">{i + 1}</td>
                 <td className="px-4 py-3">
-                  <Link to={`/players/${s.playerId}`} className="text-parchment-100 hover:text-dragon-400 transition-colors font-medium">
+                  <Link to={`/players/${s.playerId}`} className="text-parchment-100 hover:text-verde-500 transition-colors font-medium">
                     {s.playerName}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-center text-parchment-400 hidden sm:table-cell">{s.tournamentsPlayed}</td>
                 <td className="px-4 py-3 text-center text-parchment-300">{s.played}</td>
-                <td className="px-4 py-3 text-center text-emerald-400 font-medium">{s.wins}</td>
+                <td className="px-4 py-3 text-center text-emerald-600 font-medium">{s.wins}</td>
                 <td className="px-4 py-3 text-center text-parchment-400">{s.draws}</td>
                 <td className="px-4 py-3 text-center text-dragon-400">{s.losses}</td>
                 <td className="px-4 py-3 text-center text-parchment-100 font-bold">{s.points}</td>
-                <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-400' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
+                <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-600' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
                   {s.tdDiff > 0 ? `+${s.tdDiff}` : s.tdDiff}
                 </td>
               </tr>
@@ -110,11 +110,11 @@ function FactionTable({ data }: { data: FactionStats[] }) {
                 <td className="px-4 py-3 text-parchment-100 font-medium">{f.raceName}</td>
                 <td className="px-4 py-3 text-center text-parchment-400 hidden sm:table-cell">{f.timesUsed}</td>
                 <td className="px-4 py-3 text-center text-parchment-300">{f.played}</td>
-                <td className="px-4 py-3 text-center text-emerald-400 font-medium">{f.wins}</td>
+                <td className="px-4 py-3 text-center text-emerald-600 font-medium">{f.wins}</td>
                 <td className="px-4 py-3 text-center text-parchment-400">{f.draws}</td>
                 <td className="px-4 py-3 text-center text-dragon-400">{f.losses}</td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`font-bold ${f.winRate >= 50 ? 'text-emerald-400' : 'text-parchment-400'}`}>
+                  <span className={`font-bold ${f.winRate >= 50 ? 'text-emerald-600' : 'text-parchment-400'}`}>
                     {f.winRate}%
                   </span>
                 </td>

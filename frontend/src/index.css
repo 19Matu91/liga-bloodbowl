@@ -4,66 +4,96 @@
 
 @layer base {
   body {
-    background-color: #1A1A1A;
-    color: #F4F1EA;
-    font-family: system-ui, -apple-system, sans-serif;
+    background-color: #f3f3f3;
+    color: #1a1a1a;
+    font-family: 'Gemunu Libre', system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
-  h1, h2, h3 {
-    font-family: Georgia, serif;
+  /* Headings usan Quicksand igual que dragondemadera.com */
+  h1, h2, h3, h4 {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
   }
 }
 
 @layer components {
+  /* ── Botones ── */
   .btn-primary {
-    @apply bg-dragon-500 hover:bg-dragon-600 active:bg-dragon-700 text-parchment-100 px-4 py-2 rounded font-medium text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-verde-500 hover:bg-verde-400 active:bg-verde-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-carbon-800 hover:bg-carbon-850 border border-parchment-300/20 text-parchment-300 px-4 py-2 rounded font-medium text-sm transition-all duration-150;
+    @apply bg-white hover:bg-gray-50 border border-black/10 text-parchment-100 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-150;
   }
 
   .btn-danger {
-    @apply bg-dragon-500/20 hover:bg-dragon-500/40 border border-dragon-500/40 text-dragon-300 px-4 py-2 rounded font-medium text-sm transition-all duration-150 disabled:opacity-50;
+    @apply bg-red-50 hover:bg-red-100 border border-red-200 text-dragon-500 hover:text-dragon-600 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-150 disabled:opacity-40;
   }
 
+  .btn-terracota {
+    @apply bg-terracota-500 hover:bg-terracota-400 active:bg-terracota-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-150;
+  }
+
+  /* ── Superficies ── */
   .card {
-    @apply bg-carbon-850 border border-parchment-100/10 rounded-lg;
+    @apply bg-white border border-black/10 rounded-xl shadow-sm;
   }
 
+  .card-elevated {
+    @apply bg-white border border-black/10 rounded-xl shadow-md;
+  }
+
+  /* ── Formularios ── */
   .input-field {
-    @apply w-full bg-carbon-900 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 placeholder-parchment-400/40 rounded px-3 py-2 text-sm outline-none transition-colors;
+    @apply w-full bg-white border border-black/20 focus:border-verde-500 focus:outline-none text-parchment-100 placeholder-parchment-400 rounded-lg px-3 py-2 text-sm transition-colors;
   }
 
   .select-field {
-    @apply w-full bg-carbon-900 border border-parchment-100/20 focus:border-dragon-500 text-parchment-100 rounded px-3 py-2 text-sm outline-none transition-colors;
+    @apply w-full bg-white border border-black/20 focus:border-verde-500 focus:outline-none text-parchment-100 rounded-lg px-3 py-2 text-sm transition-colors;
   }
 
+  /* ── Tablas ── */
   .table-header {
-    @apply border-b border-parchment-100/10 text-parchment-400 text-left text-xs uppercase tracking-wider;
+    @apply border-b border-black/10 text-parchment-400 text-left text-xs uppercase tracking-wider pb-2;
   }
 
   .table-row {
-    @apply border-b border-parchment-100/5 hover:bg-parchment-100/3 transition-colors;
+    @apply border-b border-black/5 transition-colors;
+  }
+  .table-row:hover {
+    background-color: rgb(0 76 72 / 0.04);
   }
 
+  /* ── Badges — tema claro ── */
   .badge-active {
-    @apply bg-emerald-900/40 text-emerald-400 border border-emerald-700/40 text-xs px-2 py-0.5 rounded-full font-medium;
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-2 py-0.5 rounded-full font-semibold;
   }
 
   .badge-draft {
-    @apply bg-parchment-100/10 text-parchment-400 border border-parchment-100/20 text-xs px-2 py-0.5 rounded-full font-medium;
+    @apply bg-orange-50 text-terracota-500 border border-orange-200 text-xs px-2 py-0.5 rounded-full font-semibold;
   }
 
   .badge-completed {
-    @apply bg-carbon-800 text-parchment-400/60 border border-parchment-100/10 text-xs px-2 py-0.5 rounded-full font-medium;
+    @apply bg-gray-100 text-gray-500 border border-gray-200 text-xs px-2 py-0.5 rounded-full font-semibold;
   }
 
+  .badge-verde {
+    @apply bg-verde-500/10 text-verde-500 border border-verde-500/20 text-xs px-2 py-0.5 rounded-full font-semibold;
+  }
+
+  /* ── Tipografía ── */
   .section-title {
-    @apply font-display text-lg font-bold text-parchment-100 mb-4;
+    @apply font-display text-2xl font-bold text-parchment-100 mb-6;
   }
 
+  .page-title {
+    @apply font-display text-3xl font-bold text-parchment-100;
+  }
+
+  /* ── Separadores ── */
   .divider {
-    @apply border-t border-parchment-100/10 my-6;
+    @apply border-t border-black/10 my-6;
   }
 }

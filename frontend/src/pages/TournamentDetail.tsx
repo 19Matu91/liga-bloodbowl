@@ -216,7 +216,7 @@ export default function TournamentDetail() {
                   {tournament.participants?.map((p) => (
                     <tr key={p.id} className="table-row">
                       <td className="px-4 py-3">
-                        <Link to={`/players/${p.playerId}`} className="text-parchment-100 hover:text-dragon-400 transition-colors font-medium">
+                        <Link to={`/players/${p.playerId}`} className="text-parchment-100 hover:text-verde-500 transition-colors font-medium">
                           {p.player.name}
                         </Link>
                       </td>
@@ -287,13 +287,13 @@ function StandingsTable({ standings }: { standings: StandingsEntry[] }) {
                 <td className="px-4 py-3 text-parchment-400 hidden sm:table-cell">{s.teamName ?? '—'}</td>
                 <td className="px-4 py-3 text-parchment-400 hidden md:table-cell">{s.raceName}</td>
                 <td className="px-4 py-3 text-center text-parchment-300">{s.played}</td>
-                <td className="px-4 py-3 text-center text-emerald-400 font-medium">{s.wins}</td>
+                <td className="px-4 py-3 text-center text-emerald-600 font-medium">{s.wins}</td>
                 <td className="px-4 py-3 text-center text-parchment-400">{s.draws}</td>
                 <td className="px-4 py-3 text-center text-dragon-400">{s.losses}</td>
                 <td className="px-4 py-3 text-center text-parchment-100 font-bold">{s.points}</td>
                 <td className="px-4 py-3 text-center text-parchment-400 hidden lg:table-cell">{s.tdFor}</td>
                 <td className="px-4 py-3 text-center text-parchment-400 hidden lg:table-cell">{s.tdAgainst}</td>
-                <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-400' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
+                <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-600' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
                   {s.tdDiff > 0 ? `+${s.tdDiff}` : s.tdDiff}
                 </td>
               </tr>
@@ -375,11 +375,11 @@ function RegisterForm({ tournamentId, onSuccess }: { tournamentId: number; onSuc
 
       <div className="flex gap-2 text-xs border-b border-parchment-100/10 pb-3">
         <button type="button" onClick={() => setStep(1)}
-          className={`px-3 py-1.5 rounded transition-colors ${step === 1 ? 'bg-dragon-500 text-parchment-100' : 'text-parchment-400 hover:text-parchment-100'}`}>
+          className={`px-3 py-1.5 rounded transition-colors ${step === 1 ? 'bg-verde-500 text-white' : 'text-parchment-400 hover:text-parchment-100'}`}>
           1. Datos básicos
         </button>
         <button type="button" onClick={() => { if (raceId) setStep(2); }} disabled={!raceId}
-          className={`px-3 py-1.5 rounded transition-colors disabled:opacity-40 ${step === 2 ? 'bg-dragon-500 text-parchment-100' : 'text-parchment-400 hover:text-parchment-100'}`}>
+          className={`px-3 py-1.5 rounded transition-colors disabled:opacity-40 ${step === 2 ? 'bg-verde-500 text-white' : 'text-parchment-400 hover:text-parchment-100'}`}>
           2. Ficha de equipo
         </button>
       </div>

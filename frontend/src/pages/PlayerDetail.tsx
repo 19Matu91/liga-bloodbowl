@@ -100,7 +100,7 @@ export default function PlayerDetail() {
       <div className="card p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-dragon-500/20 border border-dragon-500/30 flex items-center justify-center text-dragon-400 font-display font-bold text-xl shrink-0">
+            <div className="w-12 h-12 rounded-full bg-verde-500/10 border border-verde-500/20 flex items-center justify-center text-verde-500 font-display font-bold text-xl shrink-0">
               {player.name.charAt(0).toUpperCase()}
             </div>
             {editing ? (
@@ -172,7 +172,7 @@ export default function PlayerDetail() {
                     return (
                       <tr key={p.id} className="table-row">
                         <td className="px-4 py-3">
-                          <Link to={`/tournaments/${p.tournament.id}`} className="text-parchment-100 hover:text-dragon-400 transition-colors font-medium">
+                          <Link to={`/tournaments/${p.tournament.id}`} className="text-parchment-100 hover:text-verde-500 transition-colors font-medium">
                             {p.tournament.name}
                           </Link>
                           <span className="text-parchment-400/60 text-xs ml-1">{p.tournament.year}</span>
@@ -180,11 +180,11 @@ export default function PlayerDetail() {
                         <td className="px-4 py-3 text-parchment-400 hidden sm:table-cell">{p.race.name}</td>
                         <td className="px-4 py-3 text-parchment-400 hidden md:table-cell">{p.teamName ?? '—'}</td>
                         <td className="px-4 py-3 text-center text-parchment-300">{s.played}</td>
-                        <td className="px-4 py-3 text-center text-emerald-400 font-medium">{s.wins}</td>
+                        <td className="px-4 py-3 text-center text-emerald-600 font-medium">{s.wins}</td>
                         <td className="px-4 py-3 text-center text-parchment-400">{s.draws}</td>
                         <td className="px-4 py-3 text-center text-dragon-400">{s.losses}</td>
                         <td className="px-4 py-3 text-center text-parchment-100 font-bold">{s.points}</td>
-                        <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-400' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
+                        <td className={`px-4 py-3 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-600' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
                           {s.tdDiff > 0 ? `+${s.tdDiff}` : s.tdDiff}
                         </td>
                       </tr>

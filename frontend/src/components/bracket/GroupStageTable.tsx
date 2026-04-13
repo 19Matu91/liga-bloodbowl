@@ -52,11 +52,11 @@ export default function GroupStageTable({ standings, qualifiersPerGroup }: Props
                     return (
                       <tr
                         key={s.participantId}
-                        className={`table-row ${isQualifier ? 'bg-emerald-950/20' : ''}`}
+                        className={`table-row ${isQualifier ? 'bg-emerald-50' : ''}`}
                       >
                         <td className="px-3 py-2.5 text-center">
                           {isQualifier
-                            ? <span className="text-emerald-400 font-bold text-xs">{i + 1}</span>
+                            ? <span className="text-emerald-600 font-bold text-xs">{i + 1}</span>
                             : <span className="text-parchment-400/60 text-xs">{i + 1}</span>
                           }
                         </td>
@@ -64,13 +64,13 @@ export default function GroupStageTable({ standings, qualifiersPerGroup }: Props
                         <td className="px-3 py-2.5 text-parchment-400 hidden sm:table-cell">{s.teamName ?? '—'}</td>
                         <td className="px-3 py-2.5 text-parchment-400 hidden md:table-cell">{s.raceName}</td>
                         <td className="px-3 py-2.5 text-center text-parchment-300">{s.played}</td>
-                        <td className="px-3 py-2.5 text-center text-emerald-400 font-medium">{s.wins}</td>
+                        <td className="px-3 py-2.5 text-center text-emerald-600 font-medium">{s.wins}</td>
                         <td className="px-3 py-2.5 text-center text-parchment-400">{s.draws}</td>
                         <td className="px-3 py-2.5 text-center text-dragon-400">{s.losses}</td>
                         <td className="px-3 py-2.5 text-center text-parchment-100 font-bold">{s.points}</td>
                         <td className="px-3 py-2.5 text-center text-parchment-400 hidden lg:table-cell">{s.tdFor}</td>
                         <td className="px-3 py-2.5 text-center text-parchment-400 hidden lg:table-cell">{s.tdAgainst}</td>
-                        <td className={`px-3 py-2.5 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-400' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
+                        <td className={`px-3 py-2.5 text-center font-medium hidden lg:table-cell ${s.tdDiff > 0 ? 'text-emerald-600' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
                           {s.tdDiff > 0 ? `+${s.tdDiff}` : s.tdDiff}
                         </td>
                       </tr>

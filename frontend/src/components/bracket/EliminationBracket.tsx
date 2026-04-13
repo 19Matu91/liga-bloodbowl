@@ -26,29 +26,29 @@ function MatchCard({ match, tournament, onResultSubmitted }: {
   return (
     <div className="card min-w-[190px] max-w-[230px] overflow-hidden">
       {/* Home */}
-      <div className={`px-3 py-2.5 border-b border-parchment-100/10 flex items-center justify-between gap-2 ${homeWon ? 'bg-emerald-950/30' : ''}`}>
+      <div className={`px-3 py-2.5 border-b border-parchment-100/10 flex items-center justify-between gap-2 ${homeWon ? 'bg-emerald-50' : ''}`}>
         <div className="min-w-0">
-          <p className={`text-xs font-medium truncate ${homeWon ? 'text-emerald-300' : 'text-parchment-100'}`}>
+          <p className={`text-xs font-medium truncate ${homeWon ? 'text-emerald-700' : 'text-parchment-100'}`}>
             {homeName}
           </p>
           {homeTeam && <p className="text-parchment-400/60 text-xs truncate">{homeTeam}</p>}
         </div>
         {isCompleted && (
-          <span className={`text-sm font-bold shrink-0 ${homeWon ? 'text-emerald-400' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
+          <span className={`text-sm font-bold shrink-0 ${homeWon ? 'text-emerald-600' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
             {match.homeTDs}
           </span>
         )}
       </div>
       {/* Away */}
-      <div className={`px-3 py-2.5 flex items-center justify-between gap-2 ${awayWon ? 'bg-emerald-950/30' : ''}`}>
+      <div className={`px-3 py-2.5 flex items-center justify-between gap-2 ${awayWon ? 'bg-emerald-50' : ''}`}>
         <div className="min-w-0">
-          <p className={`text-xs font-medium truncate ${awayWon ? 'text-emerald-300' : 'text-parchment-100'}`}>
+          <p className={`text-xs font-medium truncate ${awayWon ? 'text-emerald-700' : 'text-parchment-100'}`}>
             {awayName}
           </p>
           {awayTeam && <p className="text-parchment-400/60 text-xs truncate">{awayTeam}</p>}
         </div>
         {isCompleted && (
-          <span className={`text-sm font-bold shrink-0 ${awayWon ? 'text-emerald-400' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
+          <span className={`text-sm font-bold shrink-0 ${awayWon ? 'text-emerald-600' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
             {match.awayTDs}
           </span>
         )}
@@ -58,7 +58,7 @@ function MatchCard({ match, tournament, onResultSubmitted }: {
         <div className="px-3 py-1.5 border-t border-parchment-100/10">
           <button
             onClick={() => setShowForm(true)}
-            className="text-xs text-dragon-400 hover:text-dragon-300 transition-colors"
+            className="text-xs text-verde-500 hover:text-verde-400 transition-colors"
           >
             {isCompleted ? 'Editar resultado' : '+ Registrar resultado'}
           </button>

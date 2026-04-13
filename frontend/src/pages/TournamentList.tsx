@@ -38,11 +38,11 @@ export default function TournamentList() {
             <Link
               key={t.id}
               to={`/tournaments/${t.id}`}
-              className="card p-4 flex items-center justify-between gap-4 hover:border-dragon-500/40 transition-all duration-150 group block"
+              className="card p-4 flex items-center justify-between gap-4 hover:border-verde-500/40 transition-all duration-150 group block"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-display font-bold text-parchment-100 group-hover:text-dragon-400 transition-colors">
+                  <span className="font-display font-bold text-parchment-100 group-hover:text-verde-500 transition-colors">
                     {t.name}
                   </span>
                   <span className={

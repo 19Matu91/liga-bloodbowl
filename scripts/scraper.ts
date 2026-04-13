@@ -150,7 +150,7 @@ export async function scrapeRaces(): Promise<{ races: ScrapedRace[]; errors: Scr
   // 2. Visitar cada página de equipo
   for (const { name: raceName, url } of teamUrls) {
     try {
-      const positions = await scrapeRacePositions(raceName, url, errors);
+      const positions = await scrapeRacePositions(raceName, url);
       if (positions.length > 0) {
         races.push({ name: raceName, positions });
       }
@@ -167,7 +167,6 @@ export async function scrapeRaces(): Promise<{ races: ScrapedRace[]; errors: Scr
 async function scrapeRacePositions(
   raceName: string,
   url: string,
-  errors: ScrapeError[],
 ): Promise<ScrapedPosition[]> {
   const positions: ScrapedPosition[] = [];
 
@@ -211,7 +210,16 @@ async function scrapeRacePositions(
           idx >= 0 ? $(cells[idx]).text().trim() : '';
 
         const positionName = getCellText(colIdx.position);
-        if (!positionName || positionName.toLowerCase().includes('reroll')) return;
+
+        // Ignorar silenciosamente filas que no son posiciones de jugadores
+        const NON_POSITION_KEYWORDS = [
+          'reroll', 'special rules', 'leagues', 'choose', 'of 2', 'of 3', 'of 4',
+          'apothecary', 'wizard', 'inducement', 'star player', 'assistant',
+          'cheerleader', 'head coach',
+        ];
+        if (!positionName) return;
+        const posLower = positionName.toLowerCase();
+        if (NON_POSITION_KEYWORDS.some((kw) => posLower.includes(kw))) return;
 
         const qtyRaw = getCellText(colIdx.qty);
         const costRaw = getCellText(colIdx.cost);
@@ -227,13 +235,8 @@ async function scrapeRacePositions(
         const ag = parseStat(agRaw);
         const av = parseStat(avRaw);
 
-        if (ma === null || st === null || ag === null || av === null) {
-          errors.push({
-            element: `position:${raceName}:${positionName}`,
-            error: `Estadísticas inválidas: MA=${maRaw} ST=${stRaw} AG=${agRaw} AV=${avRaw}`,
-          });
-          return;
-        }
+        // Si las estadísticas están vacías, es una fila informativa — ignorar silenciosamente
+        if (ma === null || st === null || ag === null || av === null) return;
 
         const pa = paRaw && paRaw !== '–' && paRaw !== '-' ? parseStat(paRaw) : undefined;
         const cost = parseCost(costRaw);

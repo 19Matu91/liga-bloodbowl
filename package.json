@@ -1,0 +1,28 @@
+{
+  "name": "bloodbowl-tournament-web",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "scraper": "npx ts-node scripts/scraper.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.15.0",
+    "cheerio": "^1.2.0"
+  }
+}

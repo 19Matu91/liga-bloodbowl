@@ -1,0 +1,190 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Datos de referencia (poblados por el Scraper)
+model Race {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  positions    Position[]
+  participants Participant[]
+  updatedAt    DateTime      @updatedAt
+  scrapedAt    DateTime
+}
+
+model Position {
+  id           Int             @id @default(autoincrement())
+  raceId       Int
+  race         Race            @relation(fields: [raceId], references: [id])
+  name         String
+  cost         Int
+  ma           Int             // Movement Allowance
+  st           Int             // Strength
+  ag           Int             // Agility
+  pa           Int?            // Passing Ability
+  av           Int             // Armour Value
+  maxCount     Int
+  skills       PositionSkill[]
+  rosterEntries RosterEntry[]
+  updatedAt    DateTime        @updatedAt
+  scrapedAt    DateTime
+}
+
+model Skill {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  category         String             // General, Agility, Passing, Strength, Mutation, Trait
+  description      String
+  positions        PositionSkill[]
+  rosterEntrySkills RosterEntrySkill[]
+  updatedAt        DateTime           @updatedAt
+  scrapedAt        DateTime
+}
+
+model PositionSkill {
+  positionId Int
+  skillId    Int
+  position   Position @relation(fields: [positionId], references: [id])
+  skill      Skill    @relation(fields: [skillId], references: [id])
+
+  @@id([positionId, skillId])
+}
+
+// Torneos
+model Tournament {
+  id                 Int              @id @default(autoincrement())
+  name               String
+  edition            String
+  year               Int
+  startDate          DateTime
+  endDate            DateTime?
+  description        String?
+  status             TournamentStatus @default(DRAFT)
+  format             TournamentFormat @default(MIXED)
+  groupCount         Int?             // Para formato MIXED o GROUP_STAGE
+  qualifiersPerGroup Int?             // Clasificados por grupo que pasan a eliminatoria
+  participants       Participant[]
+  rounds             Round[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@unique([name, year])
+}
+
+enum TournamentStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+}
+
+enum TournamentFormat {
+  MIXED            // Fase de Grupos + Eliminatoria
+  SINGLE_ELIMINATION
+  ROUND_ROBIN
+}
+
+// Jugadores
+model Player {
+  id           Int           @id @default(autoincrement())
+  name         String
+  alias        String?
+  email        String?
+  phone        String?
+  participants Participant[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// Participación de un jugador en un torneo
+model Participant {
+  id            Int             @id @default(autoincrement())
+  playerId      Int
+  tournamentId  Int
+  player        Player          @relation(fields: [playerId], references: [id])
+  tournament    Tournament      @relation(fields: [tournamentId], references: [id])
+  raceId        Int
+  race          Race            @relation(fields: [raceId], references: [id])
+  teamName      String?
+  groupNumber   Int?            // Grupo asignado en Fase de Grupos
+  roster        RosterEntry[]
+  rosterHistory RosterHistory[]
+  homeMatches   Match[]         @relation("HomeParticipant")
+  awayMatches   Match[]         @relation("AwayParticipant")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([playerId, tournamentId])
+}
+
+// Jugadores de la alineación
+model RosterEntry {
+  id            Int                @id @default(autoincrement())
+  participantId Int
+  participant   Participant        @relation(fields: [participantId], references: [id])
+  positionId    Int
+  position      Position           @relation(fields: [positionId], references: [id])
+  playerName    String?
+  skills        RosterEntrySkill[]
+  spp           Int                @default(0) // Star Player Points
+  injuries      String?
+}
+
+model RosterEntrySkill {
+  rosterEntryId Int
+  skillId       Int
+  rosterEntry   RosterEntry @relation(fields: [rosterEntryId], references: [id])
+  skill         Skill       @relation(fields: [skillId], references: [id])
+
+  @@id([rosterEntryId, skillId])
+}
+
+model RosterHistory {
+  id            Int         @id @default(autoincrement())
+  participantId Int
+  participant   Participant @relation(fields: [participantId], references: [id])
+  snapshot      Json        // Snapshot completo de la alineación en ese momento
+  changedAt     DateTime    @default(now())
+  reason        String?
+}
+
+// Rondas y partidos
+model Round {
+  id           Int        @id @default(autoincrement())
+  tournamentId Int
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  number       Int
+  phase        RoundPhase
+  matches      Match[]
+  createdAt    DateTime   @default(now())
+}
+
+enum RoundPhase {
+  GROUP_STAGE
+  ELIMINATION
+}
+
+model Match {
+  id                Int         @id @default(autoincrement())
+  roundId           Int
+  round             Round       @relation(fields: [roundId], references: [id])
+  homeParticipantId Int?
+  awayParticipantId Int?
+  homeParticipant   Participant? @relation("HomeParticipant", fields: [homeParticipantId], references: [id])
+  awayParticipant   Participant? @relation("AwayParticipant", fields: [awayParticipantId], references: [id])
+  homeTDs           Int?
+  awayTDs           Int?
+  status            MatchStatus @default(PENDING)
+  winnerId          Int?        // participantId del ganador (null en empate)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+enum MatchStatus {
+  PENDING
+  COMPLETED
+}

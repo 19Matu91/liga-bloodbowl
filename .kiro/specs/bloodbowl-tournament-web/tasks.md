@@ -223,7 +223,7 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
 - [ ] 11. Checkpoint — Verificar backend completo
   - Asegurarse de que todos los tests del backend pasan. Preguntar al usuario si hay dudas antes de continuar con el frontend.
 
-- [ ] 12. Frontend — Configuración de Vite y estructura base
+- [x] 12. Frontend — Configuración de Vite y estructura base
   - Inicializar `frontend/` con Vite + React + TypeScript: `npm create vite@latest frontend -- --template react-ts`
   - Instalar dependencias: `tailwindcss`, `react-router-dom`, `@types/react-router-dom`
   - Configurar Tailwind CSS en `frontend/vite.config.ts` y `frontend/tailwind.config.js`
@@ -231,67 +231,67 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
   - Crear `frontend/src/types/index.ts` con los tipos TypeScript compartidos (Tournament, Player, Match, StandingsEntry, etc.)
   - _Requisitos: 4.5, 7.5_
 
-- [ ] 13. Frontend — Páginas de torneos
-  - [ ] 13.1 Implementar página de inicio y lista de torneos
+- [x] 13. Frontend — Páginas de torneos
+  - [x] 13.1 Implementar página de inicio y lista de torneos
     - Crear `frontend/src/pages/Home.tsx` con torneos activos y próximos torneos
     - Crear `frontend/src/pages/TournamentList.tsx` con lista ordenada por fecha descendente
     - Crear `frontend/src/App.tsx` con React Router y rutas principales
     - _Requisitos: 4.4, 7.1, 1.6_
 
-  - [ ] 13.2 Implementar formulario de creación y edición de torneo
+  - [x] 13.2 Implementar formulario de creación y edición de torneo
     - Crear `frontend/src/pages/TournamentNew.tsx` con formulario (nombre, edición, año, fechas, formato, grupos)
     - Incluir confirmación explícita antes de eliminar un torneo
     - _Requisitos: 1.1, 1.5, 1.9, 1.10, 1.11_
 
-  - [ ] 13.3 Implementar página de detalle de torneo
+  - [x] 13.3 Implementar página de detalle de torneo
     - Crear `frontend/src/pages/TournamentDetail.tsx` que muestra bracket, clasificación y lista de participantes
     - Para formato mixto: mostrar clasificación de Fase de Grupos y bracket eliminatorio en la misma página
     - _Requisitos: 3.2, 7.2, 7.3_
 
-- [ ] 14. Frontend — Visualización gráfica de brackets
-  - [ ] 14.1 Implementar componente de tabla de fase de grupos
+- [x] 14. Frontend — Visualización gráfica de brackets
+  - [x] 14.1 Implementar componente de tabla de fase de grupos
     - Crear `frontend/src/components/bracket/GroupStageTable.tsx` con tabla de clasificación por grupo
     - Mostrar puntos, victorias, empates, derrotas, TDs a favor/en contra y diferencia
     - _Requisitos: 3.5, 5.1, 5.2_
 
-  - [ ] 14.2 Implementar componente de bracket eliminatorio
+  - [x] 14.2 Implementar componente de bracket eliminatorio
     - Crear `frontend/src/components/bracket/EliminationBracket.tsx` con representación gráfica SVG o React Flow
     - Mostrar rondas, emparejamientos y resultados de forma visual
     - _Requisitos: 3.2, 3.8, 7.2_
 
-  - [ ] 14.3 Implementar componente BracketView que orquesta ambas vistas
+  - [x] 14.3 Implementar componente BracketView que orquesta ambas vistas
     - Crear `frontend/src/components/bracket/BracketView.tsx` que decide qué componente mostrar según el formato del torneo
     - _Requisitos: 3.2, 7.3_
 
-- [ ] 15. Frontend — Páginas de jugadores y estadísticas
-  - [ ] 15.1 Implementar lista y formulario de jugadores
+- [x] 15. Frontend — Páginas de jugadores y estadísticas
+  - [x] 15.1 Implementar lista y formulario de jugadores
     - Crear `frontend/src/pages/PlayerList.tsx` y `frontend/src/pages/PlayerNew.tsx`
     - _Requisitos: 2.1, 4.1_
 
-  - [ ] 15.2 Implementar perfil de jugador
+  - [x] 15.2 Implementar perfil de jugador
     - Crear `frontend/src/pages/PlayerDetail.tsx` con historial de torneos, equipos y resultados
     - _Requisitos: 2.8, 7.4_
 
-  - [ ] 15.3 Implementar inscripción de jugador en torneo y gestión de alineación
+  - [x] 15.3 Implementar inscripción de jugador en torneo y gestión de alineación
     - Añadir formulario de inscripción en `TournamentDetail.tsx` con selector de raza y nombre de equipo
     - Añadir formulario de alineación con validación en tiempo real contra datos de referencia
     - _Requisitos: 2.2, 2.3, 2.4, 2.5_
 
-  - [ ] 15.4 Implementar página de estadísticas globales y por facción
+  - [x] 15.4 Implementar página de estadísticas globales y por facción
     - Crear componentes para `GET /api/stats/global` y `GET /api/stats/factions`
     - _Requisitos: 5.3, 5.5, 7.4_
 
-- [ ] 16. Frontend — Registro de resultados y responsive
-  - [ ] 16.1 Implementar formulario de registro de resultado de partido
+- [x] 16. Frontend — Registro de resultados y responsive
+  - [x] 16.1 Implementar formulario de registro de resultado de partido
     - Añadir formulario inline en el bracket para registrar TDs de cada partido
     - Incluir confirmación explícita si el partido ya tiene resultado
     - _Requisitos: 3.3, 3.6, 1.7_
 
-  - [ ] 16.2 Implementar página de error 404 y navegación
+  - [x] 16.2 Implementar página de error 404 y navegación
     - Crear componente de error 404 con enlace a la página de inicio
     - _Requisitos: 4.6, 7.6_
 
-  - [ ] 16.3 Verificar diseño responsive con Tailwind
+  - [x] 16.3 Verificar diseño responsive con Tailwind
     - Revisar que todas las páginas son accesibles desde móvil
     - Ajustar breakpoints en componentes de bracket y tablas
     - _Requisitos: 4.5, 7.5_

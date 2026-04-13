@@ -65,20 +65,20 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
   - Ejecutar `node scripts/scraper.js` y confirmar que la base de datos contiene razas, posiciones y habilidades
   - Asegurarse de que todos los tests pasan. Preguntar al usuario si hay dudas.
 
-- [ ] 4. Backend — Configuración del servidor y estructura base
+- [x] 4. Backend — Configuración del servidor y estructura base
   - Inicializar `backend/package.json` con dependencias: `express`, `@types/express`, `typescript`, `ts-node`, `prisma` (client), `fast-check` (dev)
   - Crear `backend/src/lib/prisma.ts` con el cliente Prisma singleton
   - Crear `backend/src/server.ts` con Express, middleware JSON, y montaje de rutas bajo `/api`
   - Crear `backend/src/types/index.ts` con los tipos TypeScript compartidos (StandingsEntry, etc.)
   - _Requisitos: 4.1, 4.2, 4.3_
 
-- [ ] 5. Backend — Rutas de datos de referencia y bloqueo sin datos
-  - [ ] 5.1 Implementar endpoints de referencia
+- [x] 5. Backend — Rutas de datos de referencia y bloqueo sin datos
+  - [x] 5.1 Implementar endpoints de referencia
     - Crear `backend/src/routes/reference.ts` con `GET /api/reference/races` y `GET /api/reference/skills`
     - Devolver los datos de referencia almacenados en la base de datos
     - _Requisitos: 6.10_
 
-  - [ ] 5.2 Implementar middleware de verificación de datos de referencia
+  - [x] 5.2 Implementar middleware de verificación de datos de referencia
     - Crear función `requireReferenceData` que comprueba si existen razas en la base de datos
     - Devolver HTTP 503 con mensaje indicando ejecutar el scraper si no hay datos
     - Aplicar el middleware a los endpoints de creación de torneos y registro de alineaciones
@@ -88,8 +88,8 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 4: Bloqueo de creación sin datos de referencia**
     - **Valida: Requisitos 6.11**
 
-- [ ] 6. Backend — CRUD de torneos
-  - [ ] 6.1 Implementar endpoints de torneos
+- [x] 6. Backend — CRUD de torneos
+  - [x] 6.1 Implementar endpoints de torneos
     - Crear `backend/src/routes/tournaments.ts` con `GET /api/tournaments`, `POST /api/tournaments`, `GET /api/tournaments/:id`, `PUT /api/tournaments/:id`, `DELETE /api/tournaments/:id`
     - `GET /api/tournaments` devuelve lista ordenada por `startDate` descendente
     - `POST /api/tournaments` valida campos requeridos y devuelve 409 si nombre+año ya existe
@@ -107,7 +107,7 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 7: Round-trip de actualización de torneo**
     - **Valida: Requisitos 1.4, 1.10**
 
-  - [ ] 6.5 Implementar control de estado para registro de resultados
+  - [x] 6.5 Implementar control de estado para registro de resultados
     - Añadir validación en `POST /api/matches/:id/result` que rechaza si el torneo no está en estado `ACTIVE`
     - Devolver HTTP 400 con mensaje descriptivo
     - _Requisitos: 1.7_
@@ -116,8 +116,8 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 8: Control de estado para registro de resultados**
     - **Valida: Requisitos 1.7**
 
-- [ ] 7. Backend — CRUD de jugadores y participantes
-  - [ ] 7.1 Implementar endpoints de jugadores
+- [x] 7. Backend — CRUD de jugadores y participantes
+  - [x] 7.1 Implementar endpoints de jugadores
     - Crear `backend/src/routes/players.ts` con `GET /api/players`, `POST /api/players`, `GET /api/players/:id`
     - `GET /api/players/:id` devuelve el perfil con historial de participaciones (torneos, razas, resultados)
     - _Requisitos: 2.1, 2.7, 2.8_
@@ -126,7 +126,7 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 12: Perfil de jugador contiene historial completo**
     - **Valida: Requisitos 2.8**
 
-  - [ ] 7.3 Implementar endpoints de participantes y alineaciones
+  - [x] 7.3 Implementar endpoints de participantes y alineaciones
     - Crear `backend/src/routes/matches.ts` (parcial) y ampliar `tournaments.ts` con `POST /api/tournaments/:id/participants` y `PUT /api/participants/:id/roster`
     - `POST /api/tournaments/:id/participants` inscribe un jugador con raza y nombre de equipo
     - `PUT /api/participants/:id/roster` actualiza la alineación y registra historial con timestamp
@@ -136,7 +136,7 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 9: Participación múltiple de jugadores**
     - **Valida: Requisitos 2.2, 2.3, 2.4**
 
-  - [ ] 7.5 Implementar validación de alineación contra datos de referencia
+  - [x] 7.5 Implementar validación de alineación contra datos de referencia
     - Crear `backend/src/lib/validation.ts` con función `validateRoster(roster, raceId)`
     - Verificar que cada posición pertenece a la raza, que no supera maxCount y que el coste total es válido
     - Devolver HTTP 422 con lista de infracciones si la validación falla
@@ -150,8 +150,8 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 11: Historial de cambios de alineación**
     - **Valida: Requisitos 2.6**
 
-- [ ] 8. Backend — Generación de brackets y lógica de rondas
-  - [ ] 8.1 Implementar generación de bracket round-robin (Fase de Grupos)
+- [x] 8. Backend — Generación de brackets y lógica de rondas
+  - [x] 8.1 Implementar generación de bracket round-robin (Fase de Grupos)
     - Crear `backend/src/lib/bracket.ts` con función `generateGroupStage(participants, groupCount)`
     - Distribuir jugadores en grupos y generar partidos usando el algoritmo de rotación circular
     - Crear rondas y partidos en la base de datos
@@ -161,17 +161,17 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 13: Validez del bracket generado**
     - **Valida: Requisitos 3.1**
 
-  - [ ] 8.3 Implementar generación de bracket eliminatorio
+  - [x] 8.3 Implementar generación de bracket eliminatorio
     - Añadir función `generateEliminationBracket(qualifiers)` en `bracket.ts`
     - Calcular `nextPowerOf2`, sembrar el bracket cruzando grupos, generar byes automáticos
     - _Requisitos: 3.1, 3.5, 1.9, 1.10_
 
-  - [ ] 8.4 Implementar endpoint de generación de bracket
+  - [x] 8.4 Implementar endpoint de generación de bracket
     - Añadir `POST /api/tournaments/:id/generate-bracket` en `tournaments.ts`
     - Orquestar la generación según el formato del torneo (MIXED, SINGLE_ELIMINATION, ROUND_ROBIN)
     - _Requisitos: 3.1, 1.11_
 
-  - [ ] 8.5 Implementar registro de resultados y avance automático
+  - [x] 8.5 Implementar registro de resultados y avance automático
     - Completar `backend/src/routes/matches.ts` con `POST /api/matches/:id/result`
     - Actualizar `homeTDs`, `awayTDs`, `status = COMPLETED` y `winnerId`
     - Cuando todos los partidos de una ronda están completados, generar automáticamente la siguiente ronda
@@ -185,12 +185,12 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 15: Bracket mixto — clasificados correctos pasan a eliminatoria**
     - **Valida: Requisitos 3.5**
 
-  - [ ] 8.8 Implementar endpoints de bracket y clasificación
+  - [x] 8.8 Implementar endpoints de bracket y clasificación
     - Añadir `GET /api/tournaments/:id/bracket` y `GET /api/tournaments/:id/standings`
     - _Requisitos: 3.2, 3.7_
 
-- [ ] 9. Backend — Cálculo de clasificaciones y estadísticas
-  - [ ] 9.1 Implementar cálculo de clasificaciones
+- [x] 9. Backend — Cálculo de clasificaciones y estadísticas
+  - [x] 9.1 Implementar cálculo de clasificaciones
     - Crear `backend/src/lib/standings.ts` con función `calculateStandings(matches, participants)`
     - Calcular puntos (W=3, D=1, L=0), tdFor, tdAgainst, tdDiff
     - Ordenar por puntos DESC, tdDiff DESC, tdFor DESC
@@ -200,7 +200,7 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 17: Consistencia de clasificaciones con resultados**
     - **Valida: Requisitos 5.1, 5.2, 5.4**
 
-  - [ ] 9.3 Implementar endpoints de estadísticas globales
+  - [x] 9.3 Implementar endpoints de estadísticas globales
     - Añadir `GET /api/stats/global` y `GET /api/stats/factions`
     - `GET /api/stats/global` agrega resultados de todos los torneos por jugador
     - `GET /api/stats/factions` agrega estadísticas por raza a lo largo de todos los torneos
@@ -210,12 +210,12 @@ Implementación en tres fases ordenadas: primero el Scraper standalone con la ba
     - **Propiedad 18: Ranking global es agregación correcta**
     - **Valida: Requisitos 5.3, 5.5**
 
-- [ ] 10. Backend — Acceso público y manejo de errores
+- [x] 10. Backend — Acceso público y manejo de errores
   - [ ]* 10.1 Escribir test de propiedad para acceso sin autenticación
     - **Propiedad 16: Acceso sin autenticación a todos los endpoints**
     - **Valida: Requisitos 4.1, 4.2**
 
-  - [ ] 10.2 Implementar manejo de errores global
+  - [x] 10.2 Implementar manejo de errores global
     - Añadir middleware de error en `server.ts` que devuelve 404, 409, 422, 503 y 500 con mensajes descriptivos
     - Verificar que ningún error expone detalles internos del servidor
     - _Requisitos: 4.6, 3.6_

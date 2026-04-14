@@ -129,7 +129,7 @@ export default function GroupStageTable({ standings, qualifiersPerGroup, tournam
           onViewRoster={setRosterParticipantId}
         />
       ) : (
-      <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(groupEntries.length, 2)}, minmax(0, 1fr))` }}>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
       {groupEntries.map(([groupNum, entries]) => (
         <div key={groupNum ?? 'all'}>
           <h4 className="text-xs font-bold text-parchment-400 uppercase tracking-wider mb-2">

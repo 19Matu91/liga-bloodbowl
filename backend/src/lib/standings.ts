@@ -23,6 +23,7 @@ export function calculateStandings(
       playerName: p.player.name,
       teamName: p.teamName,
       raceName: p.race.name,
+      isVeteran: p.isVeteran,
       played: 0,
       wins: 0,
       draws: 0,

@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import TournamentList from './pages/TournamentList';
 import TournamentNew from './pages/TournamentNew';
 import TournamentDetail from './pages/TournamentDetail';
+import TournamentEdit from './pages/TournamentEdit';
 import PlayerList from './pages/PlayerList';
 import PlayerNew from './pages/PlayerNew';
 import PlayerDetail from './pages/PlayerDetail';
@@ -99,7 +100,7 @@ function Footer() {
 /* Wrapper para páginas interiores (con container y padding) */
 function PageContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       {children}
     </div>
   );
@@ -118,6 +119,7 @@ export default function App() {
             <Route path="/tournaments" element={<PageContainer><TournamentList /></PageContainer>} />
             <Route path="/tournaments/new" element={<PageContainer><TournamentNew /></PageContainer>} />
             <Route path="/tournaments/:id" element={<PageContainer><TournamentDetail /></PageContainer>} />
+            <Route path="/tournaments/:id/edit" element={<PageContainer><TournamentEdit /></PageContainer>} />
             <Route path="/players" element={<PageContainer><PlayerList /></PageContainer>} />
             <Route path="/players/new" element={<PageContainer><PlayerNew /></PageContainer>} />
             <Route path="/players/:id" element={<PageContainer><PlayerDetail /></PageContainer>} />

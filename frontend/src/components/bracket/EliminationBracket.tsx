@@ -26,7 +26,7 @@ function MatchCard({ match, tournament, onResultSubmitted }: {
   return (
     <div className="card min-w-[190px] max-w-[230px] overflow-hidden">
       {/* Home */}
-      <div className={`px-3 py-2.5 border-b border-parchment-100/10 flex items-center justify-between gap-2 ${homeWon ? 'bg-emerald-50' : ''}`}>
+      <div className={`px-3 py-2.5 border-b border-parchment-100/10 flex items-center justify-between gap-2 ${homeWon ? 'bg-verde-500/10' : ''}`}>
         <div className="min-w-0">
           <p className={`text-xs font-medium truncate ${homeWon ? 'text-emerald-700' : 'text-parchment-100'}`}>
             {homeName}
@@ -34,23 +34,33 @@ function MatchCard({ match, tournament, onResultSubmitted }: {
           {homeTeam && <p className="text-parchment-400/60 text-xs truncate">{homeTeam}</p>}
         </div>
         {isCompleted && (
-          <span className={`text-sm font-bold shrink-0 ${homeWon ? 'text-emerald-600' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
-            {match.homeTDs}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className={`text-sm font-bold ${homeWon ? 'text-verde-400' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
+              {match.homeTDs}
+            </span>
+            {match.homeCas != null && (
+              <span className="text-xs text-dragon-400/70">({match.homeCas})</span>
+            )}
+          </div>
         )}
       </div>
       {/* Away */}
-      <div className={`px-3 py-2.5 flex items-center justify-between gap-2 ${awayWon ? 'bg-emerald-50' : ''}`}>
+      <div className={`px-3 py-2.5 flex items-center justify-between gap-2 ${awayWon ? 'bg-verde-500/10' : ''}`}>
         <div className="min-w-0">
-          <p className={`text-xs font-medium truncate ${awayWon ? 'text-emerald-700' : 'text-parchment-100'}`}>
+          <p className={`text-xs font-medium truncate ${awayWon ? 'text-verde-400' : 'text-parchment-100'}`}>
             {awayName}
           </p>
           {awayTeam && <p className="text-parchment-400/60 text-xs truncate">{awayTeam}</p>}
         </div>
         {isCompleted && (
-          <span className={`text-sm font-bold shrink-0 ${awayWon ? 'text-emerald-600' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
-            {match.awayTDs}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className={`text-sm font-bold ${awayWon ? 'text-verde-400' : isDraw ? 'text-parchment-300' : 'text-parchment-400/50'}`}>
+              {match.awayTDs}
+            </span>
+            {match.awayCas != null && (
+              <span className="text-xs text-dragon-400/70">({match.awayCas})</span>
+            )}
+          </div>
         )}
       </div>
 

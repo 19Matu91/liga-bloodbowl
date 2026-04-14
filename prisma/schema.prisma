@@ -1,51 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-// Datos de referencia (poblados por el Scraper)
 model Race {
   id           Int           @id @default(autoincrement())
   name         String        @unique
-  rerollCost   Int           @default(0)
-  imageUrl     String?
-  positions    Position[]
-  participants Participant[]
   updatedAt    DateTime      @updatedAt
   scrapedAt    DateTime
+  rerollCost   Int           @default(0)
+  imageUrl     String?
+  participants Participant[]
+  positions    Position[]
 }
 
 model Position {
-  id           Int             @id @default(autoincrement())
-  raceId       Int
-  race         Race            @relation(fields: [raceId], references: [id])
-  name         String
-  cost         Int
-  ma           Int             // Movement Allowance
-  st           Int             // Strength
-  ag           Int             // Agility
-  pa           Int?            // Passing Ability
-  av           Int             // Armour Value
-  maxCount     Int
-  skills       PositionSkill[]
+  id            Int             @id @default(autoincrement())
+  raceId        Int
+  name          String
+  cost          Int
+  ma            Int
+  st            Int
+  ag            Int
+  pa            Int?
+  av            Int
+  maxCount      Int
+  updatedAt     DateTime        @updatedAt
+  scrapedAt     DateTime
+  race          Race            @relation(fields: [raceId], references: [id])
+  skills        PositionSkill[]
   rosterEntries RosterEntry[]
-  updatedAt    DateTime        @updatedAt
-  scrapedAt    DateTime
 }
 
 model Skill {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique
-  category         String             // General, Agility, Passing, Strength, Mutation, Trait
-  description      String
-  positions        PositionSkill[]
+  id                Int                @id @default(autoincrement())
+  name              String             @unique
+  category          String
+  description       String
+  updatedAt         DateTime           @updatedAt
+  scrapedAt         DateTime
+  positions         PositionSkill[]
   rosterEntrySkills RosterEntrySkill[]
-  updatedAt        DateTime           @updatedAt
-  scrapedAt        DateTime
 }
 
 model PositionSkill {
@@ -57,83 +56,67 @@ model PositionSkill {
   @@id([positionId, skillId])
 }
 
-// Torneos
 model Tournament {
   id                 Int              @id @default(autoincrement())
   name               String
   edition            String
   year               Int
   startDate          DateTime
-  endDate            DateTime?
   description        String?
-  status             TournamentStatus @default(DRAFT)
+  status             TournamentStatus @default(ACTIVE)
   format             TournamentFormat @default(MIXED)
-  groupCount         Int?             // Para formato MIXED o GROUP_STAGE
-  qualifiersPerGroup Int?             // Clasificados por grupo que pasan a eliminatoria
-  participants       Participant[]
-  rounds             Round[]
+  groupCount         Int?
+  qualifiersPerGroup Int?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
+  participants       Participant[]
+  rounds             Round[]
 
   @@unique([name, year])
 }
 
-enum TournamentStatus {
-  DRAFT
-  ACTIVE
-  COMPLETED
-}
-
-enum TournamentFormat {
-  MIXED            // Fase de Grupos + Eliminatoria
-  SINGLE_ELIMINATION
-  ROUND_ROBIN
-}
-
-// Jugadores
 model Player {
   id           Int           @id @default(autoincrement())
   name         String
-  participants Participant[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  participants Participant[]
 }
 
-// Participación de un jugador en un torneo
 model Participant {
   id            Int             @id @default(autoincrement())
   playerId      Int
   tournamentId  Int
-  player        Player          @relation(fields: [playerId], references: [id])
-  tournament    Tournament      @relation(fields: [tournamentId], references: [id])
   raceId        Int
-  race          Race            @relation(fields: [raceId], references: [id])
   teamName      String?
-  groupNumber   Int?            // Grupo asignado en Fase de Grupos
-  rerolls       Int             @default(0)
-  hasApothecary Boolean         @default(false)
-  teamValue     Int             @default(0)
-  roster        RosterEntry[]
-  rosterHistory RosterHistory[]
-  homeMatches   Match[]         @relation("HomeParticipant")
-  awayMatches   Match[]         @relation("AwayParticipant")
+  groupNumber   Int?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  hasApothecary Boolean         @default(false)
+  rerolls       Int             @default(0)
+  teamValue     Int             @default(0)
+  isVeteran     Boolean         @default(false)
+  awayMatches   Match[]         @relation("AwayParticipant")
+  homeMatches   Match[]         @relation("HomeParticipant")
+  player        Player          @relation(fields: [playerId], references: [id])
+  race          Race            @relation(fields: [raceId], references: [id])
+  tournament    Tournament      @relation(fields: [tournamentId], references: [id])
+  roster        RosterEntry[]
+  rosterHistory RosterHistory[]
 
   @@unique([playerId, tournamentId])
 }
 
-// Jugadores de la alineación
 model RosterEntry {
   id            Int                @id @default(autoincrement())
   participantId Int
-  participant   Participant        @relation(fields: [participantId], references: [id])
   positionId    Int
-  position      Position           @relation(fields: [positionId], references: [id])
   playerName    String?
-  skills        RosterEntrySkill[]
-  spp           Int                @default(0) // Star Player Points
+  spp           Int                @default(0)
   injuries      String?
+  participant   Participant        @relation(fields: [participantId], references: [id])
+  position      Position           @relation(fields: [positionId], references: [id])
+  skills        RosterEntrySkill[]
 }
 
 model RosterEntrySkill {
@@ -148,42 +131,54 @@ model RosterEntrySkill {
 model RosterHistory {
   id            Int         @id @default(autoincrement())
   participantId Int
-  participant   Participant @relation(fields: [participantId], references: [id])
-  snapshot      Json        // Snapshot completo de la alineación en ese momento
+  snapshot      Json
   changedAt     DateTime    @default(now())
   reason        String?
+  participant   Participant @relation(fields: [participantId], references: [id])
 }
 
-// Rondas y partidos
 model Round {
   id           Int        @id @default(autoincrement())
   tournamentId Int
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
   number       Int
   phase        RoundPhase
-  matches      Match[]
   createdAt    DateTime   @default(now())
+  matches      Match[]
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+}
+
+model Match {
+  id                Int          @id @default(autoincrement())
+  roundId           Int
+  homeParticipantId Int?
+  awayParticipantId Int?
+  homeTDs           Int?
+  awayTDs           Int?
+  homeCas           Int?
+  awayCas           Int?
+  status            MatchStatus  @default(PENDING)
+  winnerId          Int?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  awayParticipant   Participant? @relation("AwayParticipant", fields: [awayParticipantId], references: [id])
+  homeParticipant   Participant? @relation("HomeParticipant", fields: [homeParticipantId], references: [id])
+  round             Round        @relation(fields: [roundId], references: [id])
+}
+
+enum TournamentStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum TournamentFormat {
+  MIXED
+  SINGLE_ELIMINATION
+  ROUND_ROBIN
 }
 
 enum RoundPhase {
   GROUP_STAGE
   ELIMINATION
-}
-
-model Match {
-  id                Int         @id @default(autoincrement())
-  roundId           Int
-  round             Round       @relation(fields: [roundId], references: [id])
-  homeParticipantId Int?
-  awayParticipantId Int?
-  homeParticipant   Participant? @relation("HomeParticipant", fields: [homeParticipantId], references: [id])
-  awayParticipant   Participant? @relation("AwayParticipant", fields: [awayParticipantId], references: [id])
-  homeTDs           Int?
-  awayTDs           Int?
-  status            MatchStatus @default(PENDING)
-  winnerId          Int?        // participantId del ganador (null en empate)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
 }
 
 enum MatchStatus {

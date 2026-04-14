@@ -1,11 +1,15 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { tournaments as api } from '../api/client';
 import type { TournamentFormat } from '../types';
 import FormatSelector from '../components/FormatSelector';
 
-export default function TournamentNew() {
+export default function TournamentEdit() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const tournamentId = Number(id);
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -18,6 +22,24 @@ export default function TournamentNew() {
   const set = (field: string, value: unknown) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
+  useEffect(() => {
+    api.getById(tournamentId)
+      .then((t) => {
+        setForm({
+          name: t.name,
+          edition: t.edition,
+          year: t.year,
+          startDate: t.startDate.slice(0, 10),
+          description: t.description ?? '',
+          format: t.format,
+          groupCount: t.groupCount ?? 2,
+          qualifiersPerGroup: t.qualifiersPerGroup ?? 2,
+        });
+      })
+      .catch(() => setError('No se pudo cargar el torneo.'))
+      .finally(() => setLoading(false));
+  }, [tournamentId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.edition.trim() || !form.startDate) {
@@ -27,7 +49,7 @@ export default function TournamentNew() {
     setSubmitting(true);
     setError(null);
     try {
-      const created = await api.create({
+      await api.update(tournamentId, {
         name: form.name.trim(),
         edition: form.edition.trim(),
         year: Number(form.year),
@@ -37,21 +59,23 @@ export default function TournamentNew() {
         groupCount: form.format !== 'SINGLE_ELIMINATION' ? form.groupCount : undefined,
         qualifiersPerGroup: form.format === 'MIXED' ? form.qualifiersPerGroup : undefined,
       });
-      navigate(`/tournaments/${created.id}`);
+      navigate(`/tournaments/${tournamentId}`);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al crear torneo');
+      setError(e instanceof Error ? e.message : 'Error al actualizar torneo');
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (loading) return <div className="text-center py-12 text-parchment-400">Cargando…</div>;
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <Link to="/tournaments" className="text-parchment-400 hover:text-parchment-300 text-sm transition-colors">
-          ← Torneos
+        <Link to={`/tournaments/${tournamentId}`} className="text-parchment-400 hover:text-parchment-300 text-sm transition-colors">
+          ← Volver al torneo
         </Link>
-        <h1 className="font-display text-2xl font-bold text-parchment-100 mt-2">Nuevo torneo</h1>
+        <h1 className="font-display text-2xl font-bold text-parchment-100 mt-2">Editar torneo</h1>
       </div>
 
       {error && (
@@ -111,9 +135,9 @@ export default function TournamentNew() {
 
           <div className="flex gap-3 pt-2 border-t border-parchment-100/10">
             <button type="submit" disabled={submitting} className="btn-primary">
-              {submitting ? 'Creando…' : 'Crear torneo'}
+              {submitting ? 'Guardando…' : 'Guardar cambios'}
             </button>
-            <button type="button" onClick={() => navigate('/tournaments')} className="btn-secondary">
+            <button type="button" onClick={() => navigate(`/tournaments/${tournamentId}`)} className="btn-secondary">
               Cancelar
             </button>
           </div>

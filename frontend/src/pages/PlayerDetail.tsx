@@ -4,6 +4,7 @@ import { players as api } from '../api/client';
 import type { Player, Participant, Match } from '../types';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import AlertModal from '../components/ui/AlertModal';
+import Th from '../components/ui/Th';
 
 type PlayerWithHistory = Player & {
   participants: (Participant & {
@@ -158,12 +159,12 @@ export default function PlayerDetail() {
                     <th className="px-4 py-3 font-medium text-left">Torneo</th>
                     <th className="px-4 py-3 font-medium text-left hidden sm:table-cell">Raza</th>
                     <th className="px-4 py-3 font-medium text-left hidden md:table-cell">Equipo</th>
-                    <th className="px-4 py-3 font-medium text-center">PJ</th>
-                    <th className="px-4 py-3 font-medium text-center">V</th>
-                    <th className="px-4 py-3 font-medium text-center">E</th>
-                    <th className="px-4 py-3 font-medium text-center">D</th>
-                    <th className="px-4 py-3 font-medium text-center">Pts</th>
-                    <th className="px-4 py-3 font-medium text-center hidden lg:table-cell">Dif</th>
+                    <Th tooltip="Partidos Jugados — total de partidos disputados en este torneo" className="px-4 py-3 font-medium">PJ</Th>
+                    <Th tooltip="Victorias — partidos ganados. Vale 3 puntos cada una" className="px-4 py-3 font-medium">V</Th>
+                    <Th tooltip="Empates — partidos terminados en empate. Vale 1 punto cada uno" className="px-4 py-3 font-medium">E</Th>
+                    <Th tooltip="Derrotas — partidos perdidos. No suman puntos" className="px-4 py-3 font-medium">D</Th>
+                    <Th tooltip="Puntos totales — calculados como V×3 + E×1 + D×0" className="px-4 py-3 font-medium">Pts</Th>
+                    <Th tooltip="Diferencia de Touchdowns — TF menos TC. Desempate en caso de igualdad de puntos" className="px-4 py-3 font-medium hidden lg:table-cell">Dif</Th>
                   </tr>
                 </thead>
                 <tbody>

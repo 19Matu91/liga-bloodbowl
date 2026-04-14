@@ -36,6 +36,8 @@ export const tournaments = {
     request<Tournament>(`/api/tournaments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) =>
     request<{ message: string }>(`/api/tournaments/${id}`, { method: 'DELETE' }),
+  complete: (id: number) =>
+    request<Tournament>(`/api/tournaments/${id}/complete`, { method: 'PATCH' }),
   generateBracket: (id: number) =>
     request<{ message: string; rounds: unknown[] }>(`/api/tournaments/${id}/generate-bracket`, {
       method: 'POST',
@@ -46,6 +48,13 @@ export const tournaments = {
     }),
   getBracket: (id: number) => request<BracketData>(`/api/tournaments/${id}/bracket`),
   getStandings: (id: number) => request<StandingsEntry[]>(`/api/tournaments/${id}/standings`),
+  autoAssignGroups: (id: number) =>
+    request<Participant[]>(`/api/tournaments/${id}/auto-assign-groups`, { method: 'POST' }),
+  setGroups: (id: number, assignments: Array<{ participantId: number; groupNumber: number | null }>) =>
+    request<Participant[]>(`/api/tournaments/${id}/groups`, {
+      method: 'PUT',
+      body: JSON.stringify(assignments),
+    }),
 };
 
 // Players
@@ -78,10 +87,10 @@ export const participants = {
 
 // Matches
 export const matches = {
-  submitResult: (matchId: number, homeTDs: number, awayTDs: number) =>
+  submitResult: (matchId: number, homeTDs: number, awayTDs: number, homeCas?: number, awayCas?: number) =>
     request<unknown>(`/api/matches/${matchId}/result`, {
       method: 'POST',
-      body: JSON.stringify({ homeTDs, awayTDs }),
+      body: JSON.stringify({ homeTDs, awayTDs, homeCas, awayCas }),
     }),
 };
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { stats as api } from '../api/client';
 import type { GlobalStats, FactionStats } from '../types';
+import Th from '../components/ui/Th';
 
 export default function StatsPage() {
   const [tab, setTab] = useState<'global' | 'factions'>('global');
@@ -50,13 +51,13 @@ function GlobalTable({ data }: { data: GlobalStats[] }) {
             <tr className="table-header">
               <th className="px-4 py-3 font-medium">#</th>
               <th className="px-4 py-3 font-medium text-left">Jugador</th>
-              <th className="px-4 py-3 font-medium text-center hidden sm:table-cell">Torneos</th>
-              <th className="px-4 py-3 font-medium text-center">PJ</th>
-              <th className="px-4 py-3 font-medium text-center">V</th>
-              <th className="px-4 py-3 font-medium text-center">E</th>
-              <th className="px-4 py-3 font-medium text-center">D</th>
-              <th className="px-4 py-3 font-medium text-center">Pts</th>
-              <th className="px-4 py-3 font-medium text-center hidden lg:table-cell">Dif</th>
+              <Th tooltip="Torneos jugados — número de torneos en los que ha participado" className="px-4 py-3 font-medium hidden sm:table-cell">Torneos</Th>
+              <Th tooltip="Partidos Jugados — total de partidos disputados en todos los torneos" className="px-4 py-3 font-medium">PJ</Th>
+              <Th tooltip="Victorias — partidos ganados. Vale 3 puntos cada una" className="px-4 py-3 font-medium">V</Th>
+              <Th tooltip="Empates — partidos terminados en empate. Vale 1 punto cada uno" className="px-4 py-3 font-medium">E</Th>
+              <Th tooltip="Derrotas — partidos perdidos. No suman puntos" className="px-4 py-3 font-medium">D</Th>
+              <Th tooltip="Puntos totales — calculados como V×3 + E×1 + D×0" className="px-4 py-3 font-medium">Pts</Th>
+              <Th tooltip="Diferencia de Touchdowns — TF menos TC. Desempate en caso de igualdad de puntos" className="px-4 py-3 font-medium hidden lg:table-cell">Dif</Th>
             </tr>
           </thead>
           <tbody>
@@ -96,12 +97,12 @@ function FactionTable({ data }: { data: FactionStats[] }) {
           <thead>
             <tr className="table-header">
               <th className="px-4 py-3 font-medium text-left">Raza</th>
-              <th className="px-4 py-3 font-medium text-center hidden sm:table-cell">Usos</th>
-              <th className="px-4 py-3 font-medium text-center">PJ</th>
-              <th className="px-4 py-3 font-medium text-center">V</th>
-              <th className="px-4 py-3 font-medium text-center">E</th>
-              <th className="px-4 py-3 font-medium text-center">D</th>
-              <th className="px-4 py-3 font-medium text-center">% V</th>
+              <Th tooltip="Veces usada — número de veces que esta raza ha sido elegida en torneos" className="px-4 py-3 font-medium hidden sm:table-cell">Usos</Th>
+              <Th tooltip="Partidos Jugados — total de partidos disputados con esta raza" className="px-4 py-3 font-medium">PJ</Th>
+              <Th tooltip="Victorias — partidos ganados con esta raza" className="px-4 py-3 font-medium">V</Th>
+              <Th tooltip="Empates — partidos terminados en empate con esta raza" className="px-4 py-3 font-medium">E</Th>
+              <Th tooltip="Derrotas — partidos perdidos con esta raza" className="px-4 py-3 font-medium">D</Th>
+              <Th tooltip="Porcentaje de Victoria — victorias divididas entre partidos jugados (×100)" className="px-4 py-3 font-medium">% V</Th>
             </tr>
           </thead>
           <tbody>

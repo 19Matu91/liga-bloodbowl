@@ -5,7 +5,6 @@ import type { Tournament } from '../types';
 import { DragonIcon } from '../components/DragonLogo';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
-  DRAFT: 'Próximo',
   ACTIVE: 'En curso',
   COMPLETED: 'Finalizado',
 };
@@ -18,7 +17,6 @@ const FORMAT_LABEL: Record<Tournament['format'], string> = {
 
 function TournamentCard({ t }: { t: Tournament }) {
   const isActive = t.status === 'ACTIVE';
-  const isDraft = t.status === 'DRAFT';
   return (
     <Link
       to={`/tournaments/${t.id}`}
@@ -28,7 +26,7 @@ function TournamentCard({ t }: { t: Tournament }) {
         <h3 className="font-display font-bold text-parchment-100 group-hover:text-verde-500 transition-colors leading-snug">
           {t.name}
         </h3>
-        <span className={isActive ? 'badge-active' : isDraft ? 'badge-draft' : 'badge-completed'}>
+        <span className={isActive ? 'badge-active' : 'badge-completed'}>
           {STATUS_LABEL[t.status]}
         </span>
       </div>
@@ -59,7 +57,6 @@ export default function Home() {
   }, []);
 
   const active = tournaments.filter((t) => t.status === 'ACTIVE');
-  const upcoming = tournaments.filter((t) => t.status === 'DRAFT');
   const past = tournaments.filter((t) => t.status === 'COMPLETED').slice(0, 3);
 
   return (
@@ -110,15 +107,6 @@ export default function Home() {
                 </h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {active.map((t) => <TournamentCard key={t.id} t={t} />)}
-                </div>
-              </section>
-            )}
-
-            {upcoming.length > 0 && (
-              <section>
-                <h2 className="section-title">Próximos torneos</h2>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {upcoming.map((t) => <TournamentCard key={t.id} t={t} />)}
                 </div>
               </section>
             )}

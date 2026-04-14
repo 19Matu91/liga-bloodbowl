@@ -9,22 +9,21 @@ export function nextPowerOf2(n: number): number {
 }
 
 /**
- * Distributes participants into groups and generates round-robin matches
- * using the circular rotation algorithm.
+ * Distributes participants into groups balancing veterans and novices.
+ * Veterans and novices are distributed round-robin separately, then merged per group.
  */
-export async function generateGroupStage(
+export async function autoAssignGroups(
   participants: Participant[],
   groupCount: number,
-  tournamentId: number,
   prisma: PrismaClient
 ): Promise<void> {
-  // Distribute participants into groups
-  const groups: Participant[][] = Array.from({ length: groupCount }, () => []);
-  participants.forEach((p, i) => {
-    groups[i % groupCount].push(p);
-  });
+  const veterans = participants.filter((p) => p.isVeteran);
+  const novices = participants.filter((p) => !p.isVeteran);
 
-  // Update groupNumber for each participant
+  const groups: Participant[][] = Array.from({ length: groupCount }, () => []);
+  veterans.forEach((p, i) => groups[i % groupCount].push(p));
+  novices.forEach((p, i) => groups[i % groupCount].push(p));
+
   for (let g = 0; g < groups.length; g++) {
     for (const p of groups[g]) {
       await prisma.participant.update({
@@ -33,15 +32,55 @@ export async function generateGroupStage(
       });
     }
   }
+}
+
+/**
+ * Interleaves veterans and novices so the circular rotation algorithm
+ * produces V-vs-N matchups in the earliest rounds possible.
+ * Example: [V1,V2,N1,N2] → [V1,N1,V2,N2]
+ * Round 1 pairs: (V1 vs N2), (N1 vs V2) — all cross-category.
+ */
+function interleaveVN(players: Participant[]): Participant[] {
+  const vets = players.filter((p) => p.isVeteran);
+  const novs = players.filter((p) => !p.isVeteran);
+  const result: Participant[] = [];
+  const maxLen = Math.max(vets.length, novs.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (i < vets.length) result.push(vets[i]);
+    if (i < novs.length) result.push(novs[i]);
+  }
+  return result;
+}
+
+/**
+ * Generates round-robin matches per group using the circular rotation algorithm.
+ * Participants must already have groupNumber assigned before calling this function.
+ * Within each group, players are interleaved V/N to maximise cross-category matchups
+ * in the earliest rounds.
+ */
+export async function generateGroupStage(
+  participants: Participant[],
+  tournamentId: number,
+  prisma: PrismaClient
+): Promise<void> {
+  // Group participants by their already-assigned groupNumber
+  const groupMap = new Map<number, Participant[]>();
+  for (const p of participants) {
+    const g = p.groupNumber ?? 1;
+    if (!groupMap.has(g)) groupMap.set(g, []);
+    groupMap.get(g)!.push(p);
+  }
 
   // Generate round-robin matches per group using circular rotation
-  for (let g = 0; g < groups.length; g++) {
-    const group = groups[g];
+  for (const group of groupMap.values()) {
     const n = group.length;
     if (n < 2) continue;
 
+    // Reorder group to maximise V-vs-N matchups in early rounds
+    const ordered = interleaveVN(group);
+
     // If odd number, add a "bye" placeholder (null)
-    const players: (Participant | null)[] = n % 2 === 0 ? [...group] : [...group, null];
+    const players: (Participant | null)[] = n % 2 === 0 ? [...ordered] : [...ordered, null];
     const size = players.length;
     const roundCount = size - 1;
 

@@ -3,6 +3,7 @@ export interface StandingsEntry {
   playerName: string;
   teamName: string | null;
   raceName: string;
+  isVeteran: boolean;
   played: number;
   wins: number;
   draws: number;
@@ -32,7 +33,6 @@ export interface CreateTournamentInput {
   edition: string;
   year: number;
   startDate: string;
-  endDate?: string;
   description?: string;
   format?: 'MIXED' | 'SINGLE_ELIMINATION' | 'ROUND_ROBIN';
   groupCount?: number;
@@ -49,12 +49,15 @@ export interface RegisterParticipantInput {
   teamName?: string;
   rerolls?: number;
   hasApothecary?: boolean;
+  isVeteran?: boolean;
   roster?: RosterEntryInput[];
 }
 
 export interface MatchResultInput {
   homeTDs: number;
   awayTDs: number;
+  homeCas?: number;
+  awayCas?: number;
 }
 
 export interface UpdateRosterInput {

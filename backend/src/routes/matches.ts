@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import { generateNextEliminationRound } from '../lib/bracket';
+import { generateNextEliminationRound, generateEliminationBracket, getGroupStageQualifiers } from '../lib/bracket';
 import { MatchResultInput } from '../types';
 
 const router = Router();
@@ -60,6 +60,8 @@ router.post('/:id/result', async (req: Request, res: Response): Promise<void> =>
       data: {
         homeTDs: body.homeTDs,
         awayTDs: body.awayTDs,
+        homeCas: body.homeCas ?? null,
+        awayCas: body.awayCas ?? null,
         status: 'COMPLETED',
         winnerId,
       },
@@ -73,6 +75,37 @@ router.post('/:id/result', async (req: Request, res: Response): Promise<void> =>
 
     if (allCompleted && match.round.phase === 'ELIMINATION') {
       await generateNextEliminationRound(match.roundId, prisma);
+    }
+
+    // Auto-generate elimination bracket when all group stage matches are done
+    if (match.round.phase === 'GROUP_STAGE' && match.round.tournament.format === 'MIXED') {
+      const allGroupRounds = await prisma.round.findMany({
+        where: { tournamentId: match.round.tournamentId, phase: 'GROUP_STAGE' },
+        include: { matches: true },
+      });
+      const allGroupDone =
+        allGroupRounds.length > 0 &&
+        allGroupRounds.every((r) => r.matches.every((m) => m.status === 'COMPLETED'));
+
+      if (allGroupDone) {
+        const elimExists = await prisma.round.count({
+          where: { tournamentId: match.round.tournamentId, phase: 'ELIMINATION' },
+        });
+        if (elimExists === 0) {
+          const qualifiersPerGroup = match.round.tournament.qualifiersPerGroup ?? 2;
+          const qualifiers = await getGroupStageQualifiers(
+            match.round.tournamentId, qualifiersPerGroup, prisma
+          );
+          if (qualifiers.length >= 2) {
+            const lastRound = await prisma.round.findFirst({
+              where: { tournamentId: match.round.tournamentId },
+              orderBy: { number: 'desc' },
+            });
+            const startingRound = (lastRound?.number ?? 0) + 1;
+            await generateEliminationBracket(qualifiers, match.round.tournamentId, prisma, startingRound);
+          }
+        }
+      }
     }
 
     res.json(updated);

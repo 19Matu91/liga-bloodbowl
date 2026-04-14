@@ -4,7 +4,7 @@ import { tournaments as api } from '../api/client';
 import type { Tournament } from '../types';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
-  DRAFT: 'Borrador', ACTIVE: 'Activo', COMPLETED: 'Finalizado',
+  ACTIVE: 'Activo', COMPLETED: 'Finalizado',
 };
 const FORMAT_LABEL: Record<Tournament['format'], string> = {
   MIXED: 'Mixto', SINGLE_ELIMINATION: 'Eliminación', ROUND_ROBIN: 'Liguilla',
@@ -45,10 +45,7 @@ export default function TournamentList() {
                   <span className="font-display font-bold text-parchment-100 group-hover:text-verde-500 transition-colors">
                     {t.name}
                   </span>
-                  <span className={
-                    t.status === 'ACTIVE' ? 'badge-active' :
-                    t.status === 'DRAFT' ? 'badge-draft' : 'badge-completed'
-                  }>
+                  <span className={t.status === 'ACTIVE' ? 'badge-active' : 'badge-completed'}>
                     {STATUS_LABEL[t.status]}
                   </span>
                 </div>

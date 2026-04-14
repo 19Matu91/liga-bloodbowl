@@ -7,6 +7,7 @@ import {
   generateGroupStage,
   generateEliminationBracket,
   getGroupStageQualifiers,
+  autoAssignGroups,
 } from '../lib/bracket';
 import {
   CreateTournamentInput,
@@ -49,7 +50,6 @@ router.post('/', requireReferenceData, async (req: Request, res: Response): Prom
         edition: body.edition.trim(),
         year: Number(body.year),
         startDate: new Date(body.startDate),
-        endDate: body.endDate ? new Date(body.endDate) : null,
         description: body.description?.trim() ?? null,
         format: body.format ?? 'MIXED',
         groupCount: body.groupCount ?? null,
@@ -132,7 +132,6 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
         ...(body.edition && { edition: body.edition.trim() }),
         ...(body.year && { year: Number(body.year) }),
         ...(body.startDate && { startDate: new Date(body.startDate) }),
-        ...(body.endDate !== undefined && { endDate: body.endDate ? new Date(body.endDate) : null }),
         ...(body.description !== undefined && { description: body.description?.trim() ?? null }),
         ...(body.format && { format: body.format }),
         ...(body.groupCount !== undefined && { groupCount: body.groupCount }),
@@ -202,6 +201,104 @@ router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// PATCH /api/tournaments/:id/complete
+router.patch('/:id/complete', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID inválido.' });
+      return;
+    }
+
+    const existing = await prisma.tournament.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404).json({ error: `Torneo con id=${id} no encontrado.` });
+      return;
+    }
+
+    if (existing.status === 'COMPLETED') {
+      res.status(409).json({ error: 'El torneo ya está completado.' });
+      return;
+    }
+
+    const updated = await prisma.tournament.update({
+      where: { id },
+      data: { status: 'COMPLETED' },
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al completar torneo', details: String(err) });
+  }
+});
+
+// POST /api/tournaments/:id/auto-assign-groups
+router.post('/:id/auto-assign-groups', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: 'ID inválido.' }); return; }
+
+    const tournament = await prisma.tournament.findUnique({
+      where: { id },
+      include: { participants: true },
+    });
+    if (!tournament) { res.status(404).json({ error: `Torneo con id=${id} no encontrado.` }); return; }
+    if (tournament.participants.length < 2) {
+      res.status(400).json({ error: 'Se necesitan al menos 2 participantes.' }); return;
+    }
+
+    const existingRounds = await prisma.round.count({ where: { tournamentId: id } });
+    if (existingRounds > 0) {
+      res.status(409).json({ error: 'No se pueden reasignar grupos una vez generados los partidos.' }); return;
+    }
+
+    const groups = tournament.groupCount ?? 2;
+    await autoAssignGroups(tournament.participants, groups, prisma);
+
+    const updated = await prisma.participant.findMany({
+      where: { tournamentId: id },
+      include: { player: true, race: true },
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al auto-asignar grupos', details: String(err) });
+  }
+});
+
+// PUT /api/tournaments/:id/groups — bulk manual group assignment
+router.put('/:id/groups', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: 'ID inválido.' }); return; }
+
+    const existingRounds = await prisma.round.count({ where: { tournamentId: id } });
+    if (existingRounds > 0) {
+      res.status(409).json({ error: 'No se pueden reasignar grupos una vez generados los partidos.' }); return;
+    }
+
+    const assignments = req.body as Array<{ participantId: number; groupNumber: number | null }>;
+    if (!Array.isArray(assignments)) {
+      res.status(400).json({ error: 'Body debe ser un array de asignaciones.' }); return;
+    }
+
+    await prisma.$transaction(
+      assignments.map(({ participantId, groupNumber }) =>
+        prisma.participant.update({
+          where: { id: participantId },
+          data: { groupNumber },
+        })
+      )
+    );
+
+    const updated = await prisma.participant.findMany({
+      where: { tournamentId: id },
+      include: { player: true, race: true },
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al asignar grupos', details: String(err) });
+  }
+});
+
 // POST /api/tournaments/:id/participants
 router.post('/:id/participants', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -259,6 +356,7 @@ router.post('/:id/participants', async (req: Request, res: Response): Promise<vo
           rerolls,
           hasApothecary,
           teamValue,
+          isVeteran: body.isVeteran ?? false,
         },
         include: { player: true, race: true },
       });
@@ -404,22 +502,25 @@ router.post('/:id/generate-bracket', async (req: Request, res: Response): Promis
       return;
     }
 
-    const { format, groupCount, participants } = tournament;
+    const { format, participants } = tournament;
 
     if (format === 'MIXED') {
-      const groups = groupCount ?? 2;
-      await generateGroupStage(participants, groups, id, prisma);
+      const unassigned = participants.filter((p) => p.groupNumber == null);
+      if (unassigned.length > 0) {
+        res.status(400).json({ error: 'Todos los participantes deben tener grupo asignado antes de generar los partidos.' });
+        return;
+      }
+      await generateGroupStage(participants, id, prisma);
     } else if (format === 'ROUND_ROBIN') {
-      await generateGroupStage(participants, 1, id, prisma);
+      // For round robin, assign everyone to group 1 first
+      for (const p of participants) {
+        await prisma.participant.update({ where: { id: p.id }, data: { groupNumber: 1 } });
+      }
+      const updatedParticipants = participants.map((p) => ({ ...p, groupNumber: 1 }));
+      await generateGroupStage(updatedParticipants, id, prisma);
     } else if (format === 'SINGLE_ELIMINATION') {
       await generateEliminationBracket(participants, id, prisma);
     }
-
-    // Activate tournament
-    await prisma.tournament.update({
-      where: { id },
-      data: { status: 'ACTIVE' },
-    });
 
     const rounds = await prisma.round.findMany({
       where: { tournamentId: id },

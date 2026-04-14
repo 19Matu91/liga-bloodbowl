@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { Position } from '../types';
+import Th from './ui/Th';
 
 export interface RosterRow {
   number: number;
@@ -183,16 +184,16 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-black/10 text-parchment-400 text-left">
-                    <th className="pb-1.5 pr-2 w-8">Nº</th>
+                    <Th tooltip="Dorsal — número del jugador en la plantilla" align="center" className="pb-1.5 pr-2 w-8">Nº</Th>
                     <th className="pb-1.5 pr-2 min-w-[100px]">Nombre</th>
                     <th className="pb-1.5 pr-2 min-w-[140px]">Posición</th>
-                    <th className="pb-1.5 pr-2 w-12 text-center">MA</th>
-                    <th className="pb-1.5 pr-2 w-12 text-center">ST</th>
-                    <th className="pb-1.5 pr-2 w-12 text-center">AG</th>
-                    <th className="pb-1.5 pr-2 w-12 text-center">PA</th>
-                    <th className="pb-1.5 pr-2 w-12 text-center">AV</th>
+                    <Th tooltip="Movimiento — número de casillas que puede moverse el jugador por turno" align="center" className="pb-1.5 pr-2 w-12">MA</Th>
+                    <Th tooltip="Fuerza — valor de fuerza para bloqueos y resistencia (mayor es mejor)" align="center" className="pb-1.5 pr-2 w-12">ST</Th>
+                    <Th tooltip="Agilidad — dificultad para coger, pasar y esquivar (menor es mejor)" align="center" className="pb-1.5 pr-2 w-12">AG</Th>
+                    <Th tooltip="Pase — dificultad para pasar el balón (menor es mejor). '—' indica que el jugador no puede pasar" align="center" className="pb-1.5 pr-2 w-12">PA</Th>
+                    <Th tooltip="Armadura — dificultad para derribar al jugador tras un bloqueo (mayor es mejor)" align="center" className="pb-1.5 pr-2 w-12">AV</Th>
                     <th className="pb-1.5 pr-2 min-w-[120px]">Habilidades</th>
-                    <th className="pb-1.5 pr-2 w-20 text-right">Valor</th>
+                    <Th tooltip="Valor del jugador en miles de monedas de oro (MO)" align="right" className="pb-1.5 pr-2 w-20">Valor</Th>
                     <th className="pb-1.5 w-6"></th>
                   </tr>
                 </thead>

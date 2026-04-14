@@ -1,4 +1,4 @@
-export type TournamentStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
+export type TournamentStatus = 'ACTIVE' | 'COMPLETED';
 export type TournamentFormat = 'MIXED' | 'SINGLE_ELIMINATION' | 'ROUND_ROBIN';
 export type MatchStatus = 'PENDING' | 'COMPLETED';
 export type RoundPhase = 'GROUP_STAGE' | 'ELIMINATION';
@@ -48,6 +48,7 @@ export interface Participant {
   rerolls: number;
   hasApothecary: boolean;
   teamValue: number;
+  isVeteran: boolean;
   player: Player;
   race: Race;
 }
@@ -61,6 +62,8 @@ export interface Match {
   awayParticipant: Participant | null;
   homeTDs: number | null;
   awayTDs: number | null;
+  homeCas: number | null;
+  awayCas: number | null;
   status: MatchStatus;
   winnerId: number | null;
 }
@@ -79,7 +82,6 @@ export interface Tournament {
   edition: string;
   year: number;
   startDate: string;
-  endDate: string | null;
   description: string | null;
   status: TournamentStatus;
   format: TournamentFormat;
@@ -103,6 +105,7 @@ export interface StandingsEntry {
   playerName: string;
   teamName: string | null;
   raceName: string;
+  isVeteran: boolean;
   played: number;
   wins: number;
   draws: number;
@@ -147,7 +150,6 @@ export interface CreateTournamentInput {
   edition: string;
   year: number;
   startDate: string;
-  endDate?: string;
   description?: string;
   format?: TournamentFormat;
   groupCount?: number;
@@ -164,6 +166,7 @@ export interface RegisterParticipantInput {
   teamName?: string;
   rerolls?: number;
   hasApothecary?: boolean;
+  isVeteran?: boolean;
   roster?: RosterEntryInput[];
 }
 

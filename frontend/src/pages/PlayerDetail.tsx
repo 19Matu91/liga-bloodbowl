@@ -5,6 +5,7 @@ import type { Player, Participant, Match } from '../types';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import AlertModal from '../components/ui/AlertModal';
 import Th from '../components/ui/Th';
+import { Spinner } from '../components/ui/Spinner';
 
 type PlayerWithHistory = Player & {
   participants: (Participant & {
@@ -74,7 +75,7 @@ export default function PlayerDetail() {
     }
   };
 
-  if (loading) return <div className="text-center py-12 text-parchment-400">Cargando…</div>;
+  if (loading) return <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>;
   if (error) return <div className="text-center py-12 text-dragon-400">{error}</div>;
   if (!player) return <div className="text-center py-12 text-parchment-400">Jugador no encontrado.</div>;
 
@@ -124,7 +125,8 @@ export default function PlayerDetail() {
           <div className="flex gap-2 shrink-0">
             {editing ? (
               <>
-                <button onClick={handleSave} disabled={saving || !name.trim()} className="btn-primary">
+                <button onClick={handleSave} disabled={saving || !name.trim()} className="btn-primary inline-flex items-center gap-1.5">
+                  {saving && <Spinner size="sm" />}
                   {saving ? 'Guardando…' : 'Guardar'}
                 </button>
                 <button onClick={() => { setEditing(false); setName(player.name); }} className="btn-secondary">
@@ -134,7 +136,8 @@ export default function PlayerDetail() {
             ) : (
               <>
                 <button onClick={() => setEditing(true)} className="btn-secondary">Editar</button>
-                <button onClick={() => setConfirmDelete(true)} disabled={deleting} className="btn-danger">
+                <button onClick={() => setConfirmDelete(true)} disabled={deleting} className="btn-danger inline-flex items-center gap-1.5">
+                  {deleting && <Spinner size="sm" />}
                   {deleting ? 'Eliminando…' : 'Eliminar'}
                 </button>
               </>

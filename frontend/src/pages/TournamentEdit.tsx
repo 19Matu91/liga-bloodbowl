@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { tournaments as api } from '../api/client';
 import type { TournamentFormat } from '../types';
 import FormatSelector from '../components/FormatSelector';
+import { Spinner } from '../components/ui/Spinner';
 
 export default function TournamentEdit() {
   const { id } = useParams<{ id: string }>();
@@ -67,7 +68,7 @@ export default function TournamentEdit() {
     }
   };
 
-  if (loading) return <div className="text-center py-12 text-parchment-400">Cargando…</div>;
+  if (loading) return <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -134,7 +135,8 @@ export default function TournamentEdit() {
           </div>
 
           <div className="flex gap-3 pt-2 border-t border-parchment-100/10">
-            <button type="submit" disabled={submitting} className="btn-primary">
+            <button type="submit" disabled={submitting} className="btn-primary inline-flex items-center gap-1.5">
+              {submitting && <Spinner size="sm" />}
               {submitting ? 'Guardando…' : 'Guardar cambios'}
             </button>
             <button type="button" onClick={() => navigate(`/tournaments/${tournamentId}`)} className="btn-secondary">

@@ -7,6 +7,7 @@ import TeamSheetForm, { type TeamSheetData } from '../components/TeamSheetForm';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import AlertModal from '../components/ui/AlertModal';
 import Th from '../components/ui/Th';
+import { Spinner } from '../components/ui/Spinner';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
   ACTIVE: 'Activo', COMPLETED: 'Finalizado',
@@ -87,7 +88,7 @@ export default function TournamentDetail() {
     }
   };
 
-  if (loading) return <div className="text-center py-12 text-parchment-400">Cargando…</div>;
+  if (loading) return <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>;
   if (error) return <div className="text-center py-12 text-dragon-400">{error}</div>;
   if (!tournament) return <div className="text-center py-12 text-parchment-400">Torneo no encontrado.</div>;
 
@@ -151,7 +152,8 @@ export default function TournamentDetail() {
               </button>
             )}
             {tournament.status === 'ACTIVE' && (!bracket || bracket.rounds.length === 0) && tournament.format !== 'MIXED' && (tournament.participants?.length ?? 0) >= 2 && (
-              <button onClick={handleGenerateBracket} disabled={generatingBracket} className="btn-primary">
+              <button onClick={handleGenerateBracket} disabled={generatingBracket} className="btn-primary inline-flex items-center gap-1.5">
+                {generatingBracket && <Spinner size="sm" />}
                 {generatingBracket ? 'Generando…' : 'Generar bracket'}
               </button>
             )}
@@ -165,16 +167,18 @@ export default function TournamentDetail() {
               <button
                 onClick={() => setConfirmComplete(true)}
                 disabled={completing}
-                className="btn-primary"
+                className="btn-primary inline-flex items-center gap-1.5"
               >
+                {completing && <Spinner size="sm" />}
                 {completing ? 'Cerrando…' : 'Completar torneo'}
               </button>
             )}
             <button
               onClick={() => setConfirmDelete(true)}
               disabled={deleting}
-              className="btn-danger"
+              className="btn-danger inline-flex items-center gap-1.5"
             >
+              {deleting && <Spinner size="sm" />}
               {deleting ? 'Eliminando…' : 'Eliminar'}
             </button>
           </div>
@@ -343,16 +347,18 @@ function GroupAssignment({
           type="button"
           onClick={handleAutoAssign}
           disabled={autoAssigning}
-          className="btn-secondary text-xs"
+          className="btn-secondary text-xs inline-flex items-center gap-1.5"
         >
+          {autoAssigning && <Spinner size="sm" />}
           {autoAssigning ? 'Asignando…' : 'Auto-asignar'}
         </button>
         <button
           type="button"
           onClick={onGenerateBracket}
           disabled={!allAssigned || generatingBracket}
-          className="btn-primary text-xs disabled:opacity-40"
+          className="btn-primary text-xs disabled:opacity-40 inline-flex items-center gap-1.5"
         >
+          {generatingBracket && <Spinner size="sm" />}
           {generatingBracket ? 'Generando…' : 'Generar partidos'}
         </button>
         {!allAssigned && (
@@ -532,11 +538,13 @@ function RegisterForm({ tournamentId, onSuccess }: { tournamentId: number; onSuc
           </div>
           <div className="flex gap-2">
             {raceId && (
-              <button type="button" onClick={() => setStep(2)} className="btn-secondary text-xs">
+              <button type="button" onClick={() => setStep(2)} className="btn-secondary text-xs inline-flex items-center gap-1.5">
+                {loadingPositions && <Spinner size="sm" />}
                 {loadingPositions ? 'Cargando…' : 'Siguiente: Ficha →'}
               </button>
             )}
-            <button type="submit" disabled={submitting || !playerId || !raceId} className="btn-primary text-xs">
+            <button type="submit" disabled={submitting || !playerId || !raceId} className="btn-primary text-xs inline-flex items-center gap-1.5">
+              {submitting && <Spinner size="sm" />}
               {submitting ? 'Inscribiendo…' : 'Inscribir sin ficha'}
             </button>
           </div>
@@ -555,7 +563,8 @@ function RegisterForm({ tournamentId, onSuccess }: { tournamentId: number; onSuc
           />
           <div className="flex gap-2 pt-3 border-t border-parchment-100/10">
             <button type="button" onClick={() => setStep(1)} className="btn-secondary text-xs">← Atrás</button>
-            <button type="submit" disabled={submitting || !playerId || !raceId} className="btn-primary text-xs">
+            <button type="submit" disabled={submitting || !playerId || !raceId} className="btn-primary text-xs inline-flex items-center gap-1.5">
+              {submitting && <Spinner size="sm" />}
               {submitting ? 'Inscribiendo…' : 'Inscribir con ficha'}
             </button>
           </div>

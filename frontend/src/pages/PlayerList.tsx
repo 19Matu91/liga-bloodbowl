@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { players as api } from '../api/client';
 import type { Player } from '../types';
+import { Spinner } from '../components/ui/Spinner';
 
 export default function PlayerList() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -32,7 +33,7 @@ export default function PlayerList() {
       />
 
       {loading ? (
-        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+        <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>
       ) : filtered.length === 0 ? (
         <div className="card p-12 text-center">
           <p className="text-parchment-400 mb-4">

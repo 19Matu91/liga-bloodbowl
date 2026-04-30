@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { tournaments as api } from '../api/client';
 import type { TournamentFormat } from '../types';
 import FormatSelector from '../components/FormatSelector';
+import { Spinner } from '../components/ui/Spinner';
 
 export default function TournamentNew() {
   const navigate = useNavigate();
@@ -110,7 +111,8 @@ export default function TournamentNew() {
           </div>
 
           <div className="flex gap-3 pt-2 border-t border-parchment-100/10">
-            <button type="submit" disabled={submitting} className="btn-primary">
+            <button type="submit" disabled={submitting} className="btn-primary inline-flex items-center gap-1.5">
+              {submitting && <Spinner size="sm" />}
               {submitting ? 'Creando…' : 'Crear torneo'}
             </button>
             <button type="button" onClick={() => navigate('/tournaments')} className="btn-secondary">

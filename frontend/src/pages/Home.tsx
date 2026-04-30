@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { tournaments as api } from '../api/client';
 import type { Tournament } from '../types';
 import { DragonIcon } from '../components/DragonLogo';
+import { Spinner } from '../components/ui/Spinner';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
   ACTIVE: 'En curso',
@@ -96,7 +97,7 @@ export default function Home() {
       {/* Contenido */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
         {loading ? (
-          <div className="text-center py-12 text-parchment-400/50 text-sm">Cargando…</div>
+          <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>
         ) : (
           <>
             {active.length > 0 && (

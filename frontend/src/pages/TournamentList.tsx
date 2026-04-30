@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { tournaments as api } from '../api/client';
 import type { Tournament } from '../types';
+import { Spinner } from '../components/ui/Spinner';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
   ACTIVE: 'Activo', COMPLETED: 'Finalizado',
@@ -26,7 +27,7 @@ export default function TournamentList() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+        <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>
       ) : tournaments.length === 0 ? (
         <div className="card p-12 text-center">
           <p className="text-parchment-400 mb-4">No hay torneos registrados</p>

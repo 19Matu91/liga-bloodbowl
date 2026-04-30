@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { stats as api } from '../api/client';
 import type { GlobalStats, FactionStats } from '../types';
 import Th from '../components/ui/Th';
+import { Spinner } from '../components/ui/Spinner';
 
 export default function StatsPage() {
   const [tab, setTab] = useState<'global' | 'factions'>('global');
@@ -31,7 +32,7 @@ export default function StatsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-parchment-400">Cargando…</div>
+        <div className="flex justify-center py-16"><Spinner size="md" className="text-parchment-400/40" /></div>
       ) : tab === 'global' ? (
         <GlobalTable data={global} />
       ) : (

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { players as api } from '../api/client';
+import { Spinner } from '../components/ui/Spinner';
 
 export default function PlayerNew() {
   const navigate = useNavigate();
@@ -55,7 +56,8 @@ export default function PlayerNew() {
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={submitting} className="btn-primary">
+            <button type="submit" disabled={submitting} className="btn-primary inline-flex items-center gap-1.5">
+              {submitting && <Spinner size="sm" />}
               {submitting ? 'Creando…' : 'Crear jugador'}
             </button>
             <button type="button" onClick={() => navigate('/players')} className="btn-secondary">

@@ -99,6 +99,7 @@ export default function TournamentDetail() {
           title="Eliminar torneo"
           message={`¿Eliminar "${tournament.name}"? Esta acción no se puede deshacer.`}
           confirmLabel="Eliminar"
+          loading={deleting}
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(false)}
         />
@@ -108,6 +109,8 @@ export default function TournamentDetail() {
           title="Completar torneo"
           message={`¿Dar por finalizado "${tournament.name}"? El torneo quedará cerrado y no se podrán registrar más resultados.`}
           confirmLabel="Completar"
+          danger={false}
+          loading={completing}
           onConfirm={handleComplete}
           onCancel={() => setConfirmComplete(false)}
         />
@@ -167,19 +170,17 @@ export default function TournamentDetail() {
               <button
                 onClick={() => setConfirmComplete(true)}
                 disabled={completing}
-                className="btn-primary inline-flex items-center gap-1.5"
+                className="btn-primary"
               >
-                {completing && <Spinner size="sm" />}
-                {completing ? 'Cerrando…' : 'Completar torneo'}
+                Completar torneo
               </button>
             )}
             <button
               onClick={() => setConfirmDelete(true)}
               disabled={deleting}
-              className="btn-danger inline-flex items-center gap-1.5"
+              className="btn-danger"
             >
-              {deleting && <Spinner size="sm" />}
-              {deleting ? 'Eliminando…' : 'Eliminar'}
+              Eliminar
             </button>
           </div>
         </div>

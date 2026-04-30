@@ -86,6 +86,7 @@ export default function PlayerDetail() {
           title="Eliminar jugador"
           message={`¿Eliminar a "${player.name}"? Esta acción no se puede deshacer.`}
           confirmLabel="Eliminar"
+          loading={deleting}
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(false)}
         />
@@ -136,9 +137,8 @@ export default function PlayerDetail() {
             ) : (
               <>
                 <button onClick={() => setEditing(true)} className="btn-secondary">Editar</button>
-                <button onClick={() => setConfirmDelete(true)} disabled={deleting} className="btn-danger inline-flex items-center gap-1.5">
-                  {deleting && <Spinner size="sm" />}
-                  {deleting ? 'Eliminando…' : 'Eliminar'}
+                <button onClick={() => setConfirmDelete(true)} disabled={deleting} className="btn-danger">
+                  Eliminar
                 </button>
               </>
             )}

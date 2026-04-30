@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://liga-bloodbowl.onrender.com/api/$1"
+    }
+  ]
+}

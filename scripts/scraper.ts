@@ -768,7 +768,7 @@ export async function persistReferenceData(
             summary.errors.push({ element: `position:${race.name}:${pos.name}`, error: msg });
           }
         }
-      });
+      }, { timeout: 30000 });
     } catch (raceErr: unknown) {
       const msg = raceErr instanceof Error ? raceErr.message : String(raceErr);
       summary.errors.push({ element: `race:${race.name}`, error: msg });

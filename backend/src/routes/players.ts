@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma';
 import { CreatePlayerInput } from '../types';
 
@@ -32,6 +33,10 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     });
     res.status(201).json(player);
   } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      res.status(409).json({ error: `Ya existe un jugador con el nombre "${(req.body as CreatePlayerInput).name?.trim()}".` });
+      return;
+    }
     res.status(500).json({ error: 'Error al crear jugador', details: String(err) });
   }
 });
@@ -110,6 +115,10 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
     });
     res.json(updated);
   } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      res.status(409).json({ error: `Ya existe un jugador con el nombre "${(req.body as Partial<CreatePlayerInput>).name?.trim()}".` });
+      return;
+    }
     res.status(500).json({ error: 'Error al actualizar jugador', details: String(err) });
   }
 });

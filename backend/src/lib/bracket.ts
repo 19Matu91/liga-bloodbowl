@@ -22,7 +22,10 @@ export async function autoAssignGroups(
 
   const groups: Participant[][] = Array.from({ length: groupCount }, () => []);
   veterans.forEach((p, i) => groups[i % groupCount].push(p));
-  novices.forEach((p, i) => groups[i % groupCount].push(p));
+  // Offset novice distribution so vet and novice remainders land on different groups,
+  // guaranteeing total group sizes differ by at most 1.
+  const noviceOffset = veterans.length % groupCount;
+  novices.forEach((p, i) => groups[(i + noviceOffset) % groupCount].push(p));
 
   for (let g = 0; g < groups.length; g++) {
     for (const p of groups[g]) {

@@ -43,6 +43,7 @@ function GroupTable({
             <Th tooltip="Touchdowns a Favor — total de touchdowns anotados por el equipo" className="px-1 py-2 font-medium w-10 hidden sm:table-cell">TF</Th>
             <Th tooltip="Touchdowns en Contra — total de touchdowns recibidos por el equipo" className="px-1 py-2 font-medium w-10 hidden sm:table-cell">TC</Th>
             <Th tooltip="Diferencia de Touchdowns — TF menos TC. Desempate en caso de igualdad de puntos" className="px-1 py-2 font-medium w-10">Dif</Th>
+            {canEdit && <th className="w-6" />}
           </tr>
         </thead>
         <tbody>
@@ -82,6 +83,13 @@ function GroupTable({
                 <td className={`px-1 py-2.5 text-center font-medium text-xs ${s.tdDiff > 0 ? 'text-verde-400' : s.tdDiff < 0 ? 'text-dragon-400' : 'text-parchment-400'}`}>
                   {s.tdDiff > 0 ? `+${s.tdDiff}` : s.tdDiff}
                 </td>
+                {canEdit && (
+                  <td className="pr-2 py-2.5 text-right">
+                    <span className="text-[10px] text-parchment-400/40 border border-parchment-400/20 rounded px-1.5 py-0.5 whitespace-nowrap">
+                      ficha
+                    </span>
+                  </td>
+                )}
               </tr>
             );
           })}

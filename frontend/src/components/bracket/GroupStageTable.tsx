@@ -76,10 +76,9 @@ function GroupTable({
                     {canEdit && (
                       <button
                         onClick={() => onViewRoster(s.participantId)}
-                        title="Editar ficha"
-                        className="text-parchment-400/40 hover:text-verde-500 transition-colors leading-none"
+                        className="btn-secondary text-xs py-0.5 px-2"
                       >
-                        ✏
+                        Editar ficha
                       </button>
                     )}
                   </div>

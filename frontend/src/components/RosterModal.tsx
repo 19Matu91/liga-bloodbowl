@@ -64,11 +64,12 @@ interface Props {
   participantId: number;
   canEdit: boolean;
   onClose: () => void;
+  onSaved?: () => void;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function RosterModal({ participantId, canEdit, onClose }: Props) {
+export default function RosterModal({ participantId, canEdit, onClose, onSaved }: Props) {
   const [participant, setParticipant] = useState<ParticipantFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,6 +144,7 @@ export default function RosterModal({ participantId, canEdit, onClose }: Props) 
       const updated = await participantsApi.getById(participantId);
       setParticipant(updated as unknown as ParticipantFull);
       setEditing(false);
+      onSaved?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al guardar ficha');
     } finally {

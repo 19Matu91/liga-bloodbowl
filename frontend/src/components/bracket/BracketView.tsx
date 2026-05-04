@@ -10,11 +10,12 @@ interface Props {
   tournament: Tournament;
   standings: StandingsEntry[];
   onResultSubmitted: () => void;
+  onRosterSaved?: () => void;
 }
 
 type MixedTab = 'partidos' | 'eliminatoria';
 
-export default function BracketView({ bracket, tournament, standings, onResultSubmitted }: Props) {
+export default function BracketView({ bracket, tournament, standings, onResultSubmitted, onRosterSaved }: Props) {
   const groupRounds = bracket.rounds.filter((r) => r.phase === 'GROUP_STAGE');
   const elimRounds = bracket.rounds.filter((r) => r.phase === 'ELIMINATION');
 
@@ -34,7 +35,7 @@ export default function BracketView({ bracket, tournament, standings, onResultSu
   }, [allGroupMatchesDone, elimRounds.length]);
 
   if (bracket.format === 'ROUND_ROBIN') {
-    return <GroupStageTable standings={standings} qualifiersPerGroup={null} tournament={tournament} />;
+    return <GroupStageTable standings={standings} qualifiersPerGroup={null} tournament={tournament} onRosterSaved={onRosterSaved} />;
   }
 
   if (bracket.format === 'SINGLE_ELIMINATION') {
@@ -89,6 +90,7 @@ export default function BracketView({ bracket, tournament, standings, onResultSu
             standings={standings.filter((s) => s.groupNumber != null)}
             qualifiersPerGroup={tournament.qualifiersPerGroup}
             tournament={tournament}
+            onRosterSaved={onRosterSaved}
           />
         </div>
       )}
@@ -99,6 +101,7 @@ export default function BracketView({ bracket, tournament, standings, onResultSu
           groupRounds={groupRounds}
           tournament={tournament}
           onResultSubmitted={() => { onResultSubmitted(); }}
+          onRosterSaved={onRosterSaved}
         />
       )}
 

@@ -216,6 +216,7 @@ export default function TournamentDetail() {
             tournament={tournament}
             standings={standings}
             onResultSubmitted={load}
+            onRosterSaved={load}
           />
         </section>
       )}

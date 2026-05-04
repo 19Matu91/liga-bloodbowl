@@ -7,6 +7,7 @@ interface Props {
   groupRounds: Round[];
   tournament: Tournament;
   onResultSubmitted: () => void;
+  onRosterSaved?: () => void;
 }
 
 function MatchRow({ match, tournament, onResultSubmitted, onViewRoster }: {
@@ -126,7 +127,7 @@ function MatchRow({ match, tournament, onResultSubmitted, onViewRoster }: {
   );
 }
 
-export default function GroupStageMatches({ groupRounds, tournament, onResultSubmitted }: Props) {
+export default function GroupStageMatches({ groupRounds, tournament, onResultSubmitted, onRosterSaved }: Props) {
   const [rosterParticipantId, setRosterParticipantId] = useState<number | null>(null);
   if (groupRounds.length === 0) return null;
 
@@ -169,6 +170,7 @@ export default function GroupStageMatches({ groupRounds, tournament, onResultSub
         participantId={rosterParticipantId}
         canEdit={tournament.status === 'ACTIVE'}
         onClose={() => setRosterParticipantId(null)}
+        onSaved={onRosterSaved}
       />
     )}
     <div className="space-y-1.5">

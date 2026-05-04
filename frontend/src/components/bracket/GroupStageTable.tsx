@@ -7,6 +7,7 @@ interface Props {
   standings: StandingsEntry[];
   qualifiersPerGroup: number | null | undefined;
   tournament?: Tournament;
+  onRosterSaved?: () => void;
 }
 
 const groupLetter = (n: number | null | undefined) =>
@@ -93,7 +94,7 @@ function GroupTable({
   );
 }
 
-export default function GroupStageTable({ standings, qualifiersPerGroup, tournament }: Props) {
+export default function GroupStageTable({ standings, qualifiersPerGroup, tournament, onRosterSaved }: Props) {
   const [rosterParticipantId, setRosterParticipantId] = useState<number | null>(null);
 
   if (standings.length === 0) {
@@ -118,6 +119,7 @@ export default function GroupStageTable({ standings, qualifiersPerGroup, tournam
           participantId={rosterParticipantId}
           canEdit={canEdit ?? false}
           onClose={() => setRosterParticipantId(null)}
+          onSaved={onRosterSaved}
         />
       )}
 

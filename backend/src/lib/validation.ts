@@ -14,32 +14,17 @@ export async function validateRoster(
 ): Promise<RosterViolation[]> {
   const violations: RosterViolation[] = [];
 
-  // Load all valid positions for this race
   const validPositions = await prisma.position.findMany({
     where: { raceId },
   });
 
-  const validPositionMap = new Map(validPositions.map((p) => [p.id, p]));
+  const validPositionIds = new Set(validPositions.map((p) => p.id));
 
-  // Count occurrences of each positionId in the roster
-  const positionCounts = new Map<number, number>();
   for (const entry of roster) {
-    positionCounts.set(entry.positionId, (positionCounts.get(entry.positionId) ?? 0) + 1);
-  }
-
-  // Check each position
-  for (const [positionId, count] of positionCounts.entries()) {
-    const position = validPositionMap.get(positionId);
-    if (!position) {
+    if (!validPositionIds.has(entry.positionId)) {
       violations.push({
-        positionId,
-        message: `La posición ${positionId} no pertenece a la raza seleccionada (raceId=${raceId}).`,
-      });
-    } else if (count > position.maxCount) {
-      violations.push({
-        positionId,
-        positionName: position.name,
-        message: `La posición "${position.name}" supera el máximo permitido (${count} > ${position.maxCount}).`,
+        positionId: entry.positionId,
+        message: `La posición ${entry.positionId} no pertenece a la raza seleccionada (raceId=${raceId}).`,
       });
     }
   }

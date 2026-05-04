@@ -28,7 +28,6 @@ model Position {
   ag            Int
   pa            Int?
   av            Int
-  maxCount      Int
   updatedAt     DateTime        @updatedAt
   scrapedAt     DateTime
   race          Race            @relation(fields: [raceId], references: [id])

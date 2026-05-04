@@ -91,13 +91,6 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
     });
   };
 
-  const positionCounts: Record<number, number> = {};
-  for (const row of roster) {
-    if (row.positionId !== null) {
-      positionCounts[row.positionId] = (positionCounts[row.positionId] ?? 0) + 1;
-    }
-  }
-
   const inputCls = 'bg-white border border-black/15 text-parchment-100 rounded px-2 py-1 text-sm outline-none focus:border-verde-500 w-full transition-colors';
   const statCls = 'bg-white border border-black/15 text-parchment-100 rounded px-1 py-1 text-sm outline-none focus:border-verde-500 w-12 text-center transition-colors';
 
@@ -204,7 +197,6 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
                       row={row}
                       idx={idx}
                       positions={positions}
-                      positionCounts={positionCounts}
                       onPositionChange={handlePositionChange}
                       onUpdate={updateRow}
                       onRemove={removePlayer}
@@ -224,7 +216,6 @@ export default function TeamSheetForm({ teamName, raceName, rerollCost, position
                   row={row}
                   idx={idx}
                   positions={positions}
-                  positionCounts={positionCounts}
                   onPositionChange={handlePositionChange}
                   onUpdate={updateRow}
                   onRemove={removePlayer}
@@ -244,7 +235,6 @@ interface RowProps {
   row: RosterRow;
   idx: number;
   positions: Position[];
-  positionCounts: Record<number, number>;
   onPositionChange: (idx: number, posId: string) => void;
   onUpdate: (idx: number, patch: Partial<RosterRow>) => void;
   onRemove: (idx: number) => void;
@@ -252,7 +242,7 @@ interface RowProps {
   statCls: string;
 }
 
-function RosterRowDesktop({ row, idx, positions, positionCounts, onPositionChange, onUpdate, onRemove, inputCls, statCls }: RowProps) {
+function RosterRowDesktop({ row, idx, positions, onPositionChange, onUpdate, onRemove, inputCls, statCls }: RowProps) {
   return (
     <tr className="border-b border-black/5">
       <td className="py-1.5 pr-2 text-parchment-400 text-center">{row.number}</td>
@@ -268,7 +258,6 @@ function RosterRowDesktop({ row, idx, positions, positionCounts, onPositionChang
       <td className="py-1.5 pr-2">
         <PositionSelect
           positions={positions}
-          positionCounts={positionCounts}
           currentPosId={row.positionId}
           idx={idx}
           onChange={onPositionChange}
@@ -319,7 +308,7 @@ function RosterRowDesktop({ row, idx, positions, positionCounts, onPositionChang
 
 // ── Mobile card ───────────────────────────────────────────────────────────────
 
-function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange, onUpdate, onRemove }: Omit<RowProps, 'inputCls' | 'statCls'>) {
+function RosterRowMobile({ row, idx, positions, onPositionChange, onUpdate, onRemove }: Omit<RowProps, 'inputCls' | 'statCls'>) {
   const inputCls = 'bg-white border border-black/15 text-parchment-100 rounded px-2 py-1.5 text-sm outline-none focus:border-verde-500 w-full transition-colors';
   const statCls = 'bg-white border border-black/15 text-parchment-100 rounded px-1 py-1.5 text-sm outline-none focus:border-verde-500 w-full text-center transition-colors';
 
@@ -350,7 +339,6 @@ function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange
           <label className="text-parchment-400 text-xs">Posición</label>
           <PositionSelect
             positions={positions}
-            positionCounts={positionCounts}
             currentPosId={row.positionId}
             idx={idx}
             onChange={onPositionChange}
@@ -397,13 +385,11 @@ function RosterRowMobile({ row, idx, positions, positionCounts, onPositionChange
 
 function PositionSelect({
   positions,
-  positionCounts,
   currentPosId,
   idx,
   onChange,
 }: {
   positions: Position[];
-  positionCounts: Record<number, number>;
   currentPosId: number | null;
   idx: number;
   onChange: (idx: number, posId: string) => void;
@@ -415,16 +401,11 @@ function PositionSelect({
       className="bg-white border border-black/15 text-parchment-100 rounded px-2 py-1 text-xs outline-none focus:border-verde-500 w-full transition-colors"
     >
       <option value="">Seleccionar…</option>
-      {positions.map((p) => {
-        const count = positionCounts[p.id] ?? 0;
-        const isCurrentPos = currentPosId === p.id;
-        const available = isCurrentPos || count < p.maxCount;
-        return (
-          <option key={p.id} value={p.id} disabled={!available}>
-            {p.name} ({(p.cost / 1000).toFixed(0)}k){!available ? ' — máx' : ''}
-          </option>
-        );
-      })}
+      {positions.map((p) => (
+        <option key={p.id} value={p.id}>
+          {p.name} ({(p.cost / 1000).toFixed(0)}k)
+        </option>
+      ))}
     </select>
   );
 }

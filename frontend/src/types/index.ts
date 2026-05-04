@@ -27,7 +27,6 @@ export interface Position {
   ag: number;
   pa: number | null;
   av: number;
-  maxCount: number;
   skills: Array<{ skill: Skill }>;
 }
 

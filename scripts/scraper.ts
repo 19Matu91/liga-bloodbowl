@@ -24,7 +24,6 @@ export interface ScrapedPosition {
   ag: number;
   pa?: number;
   av: number;
-  maxCount: number;
   skills: string[];
 }
 
@@ -144,11 +143,6 @@ function parseCost(raw: string): number {
   return isNaN(n) ? 0 : Math.round(n * 1000);
 }
 
-/** Extrae el número máximo de jugadores de una celda QTY como "0-2" → 2, "0-16" → 16 */
-function parseMaxCount(raw: string): number {
-  const match = raw.trim().match(/(\d+)$/);
-  return match ? parseInt(match[1], 10) : 1;
-}
 
 /** Normaliza el nombre de una habilidad para comparación */
 function normalizeSkillName(name: string): string {
@@ -290,7 +284,6 @@ async function scrapeRacePositions(
 
         const pa = paRaw && paRaw !== '–' && paRaw !== '-' ? parseStat(paRaw) : undefined;
         const cost = parseCost(costRaw);
-        const maxCount = parseMaxCount(qtyRaw);
         const skills = skillsRaw
           ? skillsRaw
               .split(',')
@@ -298,7 +291,7 @@ async function scrapeRacePositions(
               .filter((s) => s.length > 0 && s !== '–' && s !== '-')
           : [];
 
-        positions.push({ name: positionName, cost, ma, st, ag, pa: pa ?? undefined, av, maxCount, skills });
+        positions.push({ name: positionName, cost, ma, st, ag, pa: pa ?? undefined, av, skills });
       });
   });
 
@@ -703,7 +696,6 @@ export async function persistReferenceData(
                   ag: pos.ag,
                   pa: pos.pa ?? null,
                   av: pos.av,
-                  maxCount: pos.maxCount,
                   scrapedAt,
                 },
               });
@@ -718,7 +710,6 @@ export async function persistReferenceData(
                   ag: pos.ag,
                   pa: pos.pa ?? null,
                   av: pos.av,
-                  maxCount: pos.maxCount,
                   scrapedAt,
                 },
               });

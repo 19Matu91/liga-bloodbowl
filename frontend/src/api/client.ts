@@ -78,10 +78,10 @@ export const participants = {
     }),
   getById: (id: number) =>
     request<Participant & { roster: unknown[] }>(`/api/participants/${id}`),
-  updateRoster: (participantId: number, roster: unknown[], rerolls?: number, hasApothecary?: boolean) =>
+  updateRoster: (participantId: number, roster: unknown[], rerolls?: number, hasApothecary?: boolean, teamName?: string) =>
     request<unknown[]>(`/api/participants/${participantId}/roster`, {
       method: 'PUT',
-      body: JSON.stringify({ roster, rerolls, hasApothecary }),
+      body: JSON.stringify({ roster, rerolls, hasApothecary, teamName }),
     }),
 };
 

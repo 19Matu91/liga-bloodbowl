@@ -64,4 +64,5 @@ export interface UpdateRosterInput {
   roster: RosterEntryInput[];
   rerolls?: number;
   hasApothecary?: boolean;
+  teamName?: string;
 }

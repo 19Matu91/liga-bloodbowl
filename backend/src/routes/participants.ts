@@ -125,9 +125,10 @@ router.put('/:id/roster', requireReferenceData, async (req: Request, res: Respon
     );
 
     // Update participant fields
+    const teamName = body.teamName !== undefined ? (body.teamName.trim() || null) : undefined;
     await prisma.participant.update({
       where: { id: participantId },
-      data: { rerolls, hasApothecary, teamValue },
+      data: { rerolls, hasApothecary, teamValue, ...(teamName !== undefined && { teamName }) },
     });
 
     res.json(created);

@@ -77,6 +77,7 @@ export default function RosterModal({ participantId, canEdit, onClose }: Props) 
   const [editRows, setEditRows] = useState<EditRow[]>([]);
   const [editRerolls, setEditRerolls] = useState(0);
   const [editApothecary, setEditApothecary] = useState(false);
+  const [editTeamName, setEditTeamName] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Reference data for edit mode
@@ -103,6 +104,7 @@ export default function RosterModal({ participantId, canEdit, onClose }: Props) 
       setAllSkills(skills);
       setEditRerolls(participant.rerolls);
       setEditApothecary(participant.hasApothecary);
+      setEditTeamName(participant.teamName ?? '');
       setEditRows(participant.roster.map((e) => ({
         positionId: e.positionId,
         playerName: e.playerName ?? '',
@@ -136,7 +138,7 @@ export default function RosterModal({ participantId, canEdit, onClose }: Props) 
           injuries: r.injuries.trim() || undefined,
           skillIds: r.additionalSkillIds,
         }));
-      await participantsApi.updateRoster(participantId, roster, editRerolls, editApothecary);
+      await participantsApi.updateRoster(participantId, roster, editRerolls, editApothecary, editTeamName);
       // Reload
       const updated = await participantsApi.getById(participantId);
       setParticipant(updated as unknown as ParticipantFull);
@@ -224,6 +226,13 @@ export default function RosterModal({ participantId, canEdit, onClose }: Props) 
                   : participant.teamValue)} highlight />
                 {editing ? (
                   <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-parchment-400 text-xs">Nombre equipo:</span>
+                      <input type="text" value={editTeamName}
+                        onChange={(e) => setEditTeamName(e.target.value)}
+                        placeholder="Opcional"
+                        className="w-40 bg-white/5 border border-parchment-100/20 text-parchment-100 rounded px-2 py-0.5 text-sm outline-none focus:border-verde-500" />
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-parchment-400 text-xs">Re-rolls:</span>
                       <input type="number" min={0} max={8} value={editRerolls}

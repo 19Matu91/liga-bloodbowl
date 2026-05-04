@@ -51,7 +51,8 @@ function GroupTable({
             return (
               <tr
                 key={s.participantId}
-                className={`table-row ${isQualifier ? 'bg-verde-500/10 border-l-2 border-verde-500' : ''}`}
+                onClick={() => onViewRoster(s.participantId)}
+                className={`table-row cursor-pointer ${canEdit ? 'hover:bg-verde-500/5' : 'hover:bg-parchment-100/3'} ${isQualifier ? 'bg-verde-500/10 border-l-2 border-verde-500' : ''}`}
               >
                 <td className="px-2 py-2.5 text-center">
                   {isQualifier
@@ -59,29 +60,16 @@ function GroupTable({
                     : <span className="text-parchment-400/60 text-xs">{i + 1}</span>
                   }
                 </td>
-                <td className="px-3 py-2.5">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <button
-                      onClick={() => onViewRoster(s.participantId)}
-                      className="text-parchment-100 font-medium hover:text-verde-500 transition-colors text-left"
-                    >
-                      {s.playerName}
-                    </button>
-                    <span className={`text-[10px] font-bold px-1 py-0.5 rounded leading-none ${s.isVeteran ? 'bg-terracota-500/20 text-terracota-400' : 'bg-verde-500/20 text-verde-400'}`}>
+                <td className="px-3 py-2.5 max-w-[160px]">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-parchment-100 font-medium truncate">{s.playerName}</span>
+                    <span className={`shrink-0 text-[10px] font-bold px-1 py-0.5 rounded leading-none ${s.isVeteran ? 'bg-terracota-500/20 text-terracota-400' : 'bg-verde-500/20 text-verde-400'}`}>
                       {s.isVeteran ? 'V' : 'N'}
                     </span>
-                    {s.teamName && (
-                      <span className="text-parchment-400/50 text-xs hidden sm:inline">{s.teamName}</span>
-                    )}
-                    {canEdit && (
-                      <button
-                        onClick={() => onViewRoster(s.participantId)}
-                        className="btn-secondary text-xs py-0.5 px-2"
-                      >
-                        Editar ficha
-                      </button>
-                    )}
                   </div>
+                  {s.teamName && (
+                    <span className="text-parchment-400/50 text-xs truncate block">{s.teamName}</span>
+                  )}
                 </td>
                 <td className="px-2 py-2.5 text-parchment-400 text-xs hidden sm:table-cell">{s.raceName}</td>
                 <td className="px-1 py-2.5 text-center text-parchment-300 text-xs">{s.played}</td>

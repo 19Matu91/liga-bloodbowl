@@ -17,11 +17,13 @@ function GroupTable({
   entries,
   qualifiersPerGroup,
   tournament,
+  canEdit,
   onViewRoster,
 }: {
   entries: StandingsEntry[];
   qualifiersPerGroup: number | null | undefined;
   tournament?: Tournament;
+  canEdit: boolean;
   onViewRoster: (participantId: number) => void;
 }) {
   return (
@@ -70,6 +72,15 @@ function GroupTable({
                     </span>
                     {s.teamName && (
                       <span className="text-parchment-400/50 text-xs hidden sm:inline">{s.teamName}</span>
+                    )}
+                    {canEdit && (
+                      <button
+                        onClick={() => onViewRoster(s.participantId)}
+                        title="Editar ficha"
+                        className="text-parchment-400/40 hover:text-verde-500 transition-colors leading-none"
+                      >
+                        ✏
+                      </button>
                     )}
                   </div>
                 </td>
@@ -128,6 +139,7 @@ export default function GroupStageTable({ standings, qualifiersPerGroup, tournam
           entries={groupEntries[0][1]}
           qualifiersPerGroup={qualifiersPerGroup}
           tournament={tournament}
+          canEdit={canEdit ?? false}
           onViewRoster={setRosterParticipantId}
         />
       ) : (
@@ -137,7 +149,7 @@ export default function GroupStageTable({ standings, qualifiersPerGroup, tournam
           <h4 className="text-xs font-bold text-parchment-400 uppercase tracking-wider mb-2">
             Grupo {groupLetter(groupNum)}
           </h4>
-          <GroupTable entries={entries} qualifiersPerGroup={qualifiersPerGroup} tournament={tournament} onViewRoster={setRosterParticipantId} />
+          <GroupTable entries={entries} qualifiersPerGroup={qualifiersPerGroup} tournament={tournament} canEdit={canEdit ?? false} onViewRoster={setRosterParticipantId} />
         </div>
       ))}
       </div>
